@@ -1,0 +1,2631 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loeiland | ที่ดินและอสังหาริมทรัพย์จังหวัดเลย</title>
+  <meta name="description" content="ค้นหาที่ดิน บ้าน สวน รีสอร์ต และอสังหาริมทรัพย์จังหวัดเลยแบบดูโซนบนแผนที่ พร้อมข้อมูลทำเลโดย Loeiland">
+  <style>
+    :root {
+      --bg: #f6f4ee;
+      --paper: #fffdf8;
+      --ink: #1f2a24;
+      --muted: #66746c;
+      --line: #dfd8ca;
+      --brand: #0f6b4f;
+      --brand-2: #d3993b;
+      --soft: #e9f2ed;
+      --danger: #a34b35;
+      --shadow: 0 18px 45px rgba(36, 45, 39, .12);
+      --radius: 8px;
+      --map-size: 256px;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Thai", "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      overflow: hidden;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 253, 248, .94);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 180px;
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      background: linear-gradient(145deg, #0f6b4f, #174636);
+      box-shadow: 0 8px 18px rgba(15, 107, 79, .25);
+    }
+
+    .brand strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .nav-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .pill, .primary, .ghost {
+      min-height: 38px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 8px 14px;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    .primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .ghost {
+      color: var(--brand);
+      font-weight: 700;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(340px, 420px) 1fr;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel {
+      overflow: auto;
+      border-right: 1px solid var(--line);
+      background: var(--paper);
+      min-height: 0;
+      overscroll-behavior: contain;
+    }
+
+    .intro {
+      padding: 22px 22px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 4vw, 44px);
+      line-height: 1.08;
+    }
+
+    .intro p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .stat {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbf8f0;
+    }
+
+    .stat b {
+      display: block;
+      color: var(--brand);
+      font-size: 18px;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field.wide {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(15, 107, 79, .12);
+    }
+
+    .listing-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 22px 0;
+    }
+
+    .listing-head h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .cards {
+      display: grid;
+      gap: 12px;
+      padding: 14px 22px 24px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(36, 45, 39, .06);
+    }
+
+    .card.active {
+      border-color: var(--brand);
+      box-shadow: 0 12px 30px rgba(15, 107, 79, .16);
+    }
+
+    .photo {
+      position: relative;
+      height: 138px;
+      background:
+        linear-gradient(120deg, rgba(15,107,79,.18), rgba(211,153,59,.26)),
+        linear-gradient(165deg, #d9e8dc 0 46%, #b8d0bd 46% 55%, #e8d8b6 55% 100%);
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .photo::before {
+      content: "";
+      position: absolute;
+      inset: 34% 0 auto;
+      height: 28px;
+      background: rgba(255,255,255,.32);
+      transform: skewY(-4deg);
+    }
+
+    .badge, .status {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(31, 42, 36, .78);
+    }
+
+    .status {
+      background: var(--brand);
+    }
+
+    .card-body {
+      padding: 13px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+
+    .meta span {
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: var(--muted);
+      background: #f3efe6;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .price {
+      color: var(--brand);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .rate {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .card-actions button {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: var(--paper);
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .card-actions button:last-child {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .map-area {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      background: #c9d7cd;
+    }
+
+    #map {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      background: #dfe7df;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .tile {
+      position: absolute;
+      width: var(--map-size);
+      height: var(--map-size);
+      image-rendering: auto;
+    }
+
+    .marker, .poi {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      border: 0;
+      background: transparent;
+      padding: 0;
+    }
+
+    .marker {
+      width: 178px;
+      height: 92px;
+      display: grid;
+      place-items: center;
+    }
+
+    .zone-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 68px;
+      height: 68px;
+      border: 2px solid rgba(15, 107, 79, .45);
+      border-radius: 999px;
+      background: rgba(15, 107, 79, .12);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 10px rgba(15, 107, 79, .08);
+    }
+
+    .marker-core {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 3px solid #fff;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--brand);
+      box-shadow: 0 10px 24px rgba(31, 42, 36, .28);
+      transform: translate(-50%, -50%);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .marker-core::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -9px;
+      width: 13px;
+      height: 13px;
+      border-right: 3px solid #fff;
+      border-bottom: 3px solid #fff;
+      background: var(--brand);
+      transform: translateX(-50%) rotate(45deg);
+      border-radius: 0 0 4px 0;
+      z-index: -1;
+    }
+
+    .pin {
+      position: absolute;
+      left: 50%;
+      top: -3px;
+      min-width: 134px;
+      max-width: 180px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--brand);
+      box-shadow: var(--shadow);
+      text-align: left;
+      transform: translate(-50%, -100%);
+    }
+
+    .pin b {
+      display: block;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pin span {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      opacity: .9;
+    }
+
+    .marker.active .zone-ring {
+      border-color: rgba(163, 75, 53, .62);
+      background: rgba(163, 75, 53, .14);
+      box-shadow: 0 0 0 13px rgba(163, 75, 53, .1);
+    }
+
+    .marker.active .marker-core,
+    .marker.active .marker-core::after {
+      background: var(--danger);
+    }
+
+    .marker.active .pin {
+      background: var(--danger);
+      transform: translate(-50%, calc(-100% - 5px));
+    }
+
+    .map-popup {
+      position: absolute;
+      z-index: 12;
+      width: 264px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      pointer-events: none;
+    }
+
+    .preview-photo {
+      position: relative;
+      height: 92px;
+      background:
+        linear-gradient(125deg, rgba(15,107,79,.2), rgba(211,153,59,.24)),
+        linear-gradient(160deg, #dcebdc 0 45%, #9bbd9f 45% 56%, #ead9ad 56% 100%);
+    }
+
+    .preview-photo span {
+      position: absolute;
+      left: 9px;
+      bottom: 8px;
+      border-radius: 999px;
+      padding: 4px 8px;
+      color: #fff;
+      background: rgba(31, 42, 36, .78);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .preview-body {
+      padding: 10px;
+    }
+
+    .preview-body strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .preview-price {
+      color: var(--brand);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .preview-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin: 8px 0;
+    }
+
+    .preview-meta span {
+      border-radius: 999px;
+      padding: 4px 7px;
+      color: var(--muted);
+      background: #f3efe6;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .preview-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .poi {
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .poi-dot {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 2px solid #fff;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--brand-2);
+      box-shadow: 0 8px 20px rgba(31, 42, 36, .2);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .map-tools {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      display: grid;
+      gap: 8px;
+    }
+
+    .map-tools button {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, .95);
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 900;
+      box-shadow: 0 6px 16px rgba(31, 42, 36, .12);
+    }
+
+    .map-legend {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      z-index: 10;
+      width: min(360px, calc(100% - 32px));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: rgba(255, 253, 248, .96);
+      box-shadow: var(--shadow);
+    }
+
+    .map-legend strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .map-legend p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .attribution {
+      position: absolute;
+      right: 12px;
+      bottom: 8px;
+      z-index: 9;
+      color: #335144;
+      font-size: 11px;
+      background: rgba(255,255,255,.78);
+      padding: 3px 6px;
+      border-radius: 4px;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 30;
+      width: min(520px, 100%);
+      overflow: auto;
+      padding: 22px;
+      background: var(--paper);
+      box-shadow: -18px 0 45px rgba(31, 42, 36, .16);
+      transform: translateX(105%);
+      transition: transform .22s ease;
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .drawer h2 {
+      margin: 0 0 6px;
+      font-size: 26px;
+      line-height: 1.15;
+    }
+
+    .drawer .close {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 22px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .detail {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 11px;
+      background: #fff;
+    }
+
+    .detail span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .detail b {
+      display: block;
+      font-size: 15px;
+    }
+
+    .section {
+      margin-top: 18px;
+    }
+
+    .section h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .section p, .section li {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .section ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .lead-box {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--soft);
+    }
+
+    .lead-box h3 {
+      margin: 0 0 10px;
+    }
+
+    .lead-box form {
+      display: grid;
+      gap: 9px;
+    }
+
+    .lead-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .lead-actions a, .lead-actions button {
+      border: 1px solid var(--brand);
+      border-radius: var(--radius);
+      padding: 11px 12px;
+      text-align: center;
+      background: var(--brand);
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .lead-actions a {
+      border-color: #243d33;
+      background: #243d33;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .helper {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .admin-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .admin-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .submission-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fff;
+    }
+
+    .submission-card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .submission-card p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .submission-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .submission-actions button {
+      border: 1px solid var(--brand);
+      border-radius: var(--radius);
+      padding: 10px;
+      color: #fff;
+      background: var(--brand);
+      font-weight: 900;
+    }
+
+    .submission-actions button.reject {
+      border-color: var(--danger);
+      background: var(--danger);
+    }
+
+    .admin-lock {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--soft);
+    }
+
+    .inline-note {
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: #574927;
+      background: #fff3d8;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #fff;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .consent input {
+      width: auto;
+      margin-top: 3px;
+      accent-color: var(--brand);
+    }
+
+    .crm-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .crm-row select {
+      min-width: 160px;
+      padding: 8px 10px;
+    }
+
+    .admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      z-index: 40;
+      width: min(420px, calc(100% - 32px));
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      color: #fff;
+      background: #243d33;
+      box-shadow: var(--shadow);
+      transform: translate(-50%, 120px);
+      transition: transform .2s ease;
+    }
+
+    .toast.show {
+      transform: translate(-50%, 0);
+    }
+
+    .empty {
+      margin: 0 22px 24px;
+      padding: 16px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #fff;
+    }
+
+    @media (max-width: 940px) {
+      .shell {
+        grid-template-columns: 1fr;
+        grid-template-rows: 45vh minmax(0, 1fr);
+      }
+      .panel {
+        border-right: 0;
+      }
+      .map-area {
+        order: -1;
+      }
+      .topbar {
+        align-items: flex-start;
+        padding: 12px 14px;
+      }
+      .nav-actions {
+        gap: 6px;
+      }
+      .pill, .primary, .ghost {
+        min-height: 34px;
+        padding: 7px 10px;
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar {
+        display: grid;
+      }
+      .filters, .stats, .detail-grid, .lead-actions {
+        grid-template-columns: 1fr;
+      }
+      .intro, .filters, .listing-head, .cards {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+      .form-grid, .submission-actions {
+        grid-template-columns: 1fr;
+      }
+      .pin {
+        min-width: 112px;
+        max-width: 132px;
+      }
+      .pin b {
+        font-size: 12px;
+      }
+      .map-popup {
+        width: min(264px, calc(100% - 24px));
+      }
+      .map-tools {
+        top: 10px;
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Loeiland home">
+        <span class="logo">LL</span>
+        <span>
+          <strong>Loeiland</strong>
+          <span data-i18n="tagline">ที่ดินและอสังหาริมทรัพย์จังหวัดเลย</span>
+        </span>
+      </a>
+      <nav class="nav-actions" aria-label="Main actions">
+        <button class="pill" id="langBtn" type="button">EN</button>
+        <button class="ghost" id="resetBtn" type="button" data-i18n="reset">ล้างตัวกรอง</button>
+        <button class="ghost" id="buyerRequestBtn" type="button" data-i18n="buyerRequest">แจ้งต้องการซื้อ</button>
+        <button class="ghost" id="submitPropertyBtn" type="button" data-i18n="submitProperty">ฝากขายทรัพย์</button>
+        <button class="pill" id="adminBtn" type="button" data-i18n="admin">แอดมิน</button>
+        <button class="pill" id="privacyBtn" type="button" data-i18n="privacy">Privacy/Terms</button>
+        <a class="primary" id="contactPageLink" href="https://www.facebook.com/" target="_blank" rel="noreferrer" data-i18n="facebook">ติดต่อ Facebook</a>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <aside class="panel" aria-label="Property search panel">
+        <section class="intro">
+          <h1 data-i18n="hero">ดูทรัพย์จังหวัดเลยจากแผนที่โซน</h1>
+          <p data-i18n="heroText">ค้นหาที่ดิน บ้าน สวน รีสอร์ต และทรัพย์ลงทุน โดยแสดงทำเลเป็นบริเวณโดยประมาณ ไม่เปิดพิกัดจริงก่อนติดต่อทีม Loeiland</p>
+          <div class="stats" aria-label="Site statistics">
+            <div class="stat"><b id="statTotal">5</b><span data-i18n="statListings">รายการเริ่มต้น</span></div>
+            <div class="stat"><b>14</b><span data-i18n="statDistricts">อำเภอในจังหวัดเลย</span></div>
+            <div class="stat"><b>0฿</b><span data-i18n="statMap">ค่าแผนที่ช่วง MVP</span></div>
+          </div>
+        </section>
+
+        <section class="filters" aria-label="Search filters">
+          <div class="field wide">
+            <label for="keyword" data-i18n="keyword">ค้นหาคำสำคัญ</label>
+            <input id="keyword" type="search" placeholder="เช่น เชียงคาน, ติดถนน, สวน, รีสอร์ต">
+          </div>
+          <div class="field">
+            <label for="typeFilter" data-i18n="propertyType">ประเภททรัพย์</label>
+            <select id="typeFilter"></select>
+          </div>
+          <div class="field">
+            <label for="districtFilter" data-i18n="district">อำเภอ</label>
+            <select id="districtFilter"></select>
+          </div>
+          <div class="field">
+            <label for="subdistrictFilter" data-i18n="subdistrict">ตำบล</label>
+            <select id="subdistrictFilter"></select>
+          </div>
+          <div class="field">
+            <label for="maxPrice" data-i18n="maxPrice">ราคาสูงสุด</label>
+            <select id="maxPrice">
+              <option value="">ทั้งหมด</option>
+              <option value="1000000">ไม่เกิน 1 ล้าน</option>
+              <option value="3000000">ไม่เกิน 3 ล้าน</option>
+              <option value="5000000">ไม่เกิน 5 ล้าน</option>
+              <option value="10000000">ไม่เกิน 10 ล้าน</option>
+              <option value="20000000">ไม่เกิน 20 ล้าน</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="minSize" data-i18n="minSize">ขนาดขั้นต่ำ</label>
+            <select id="minSize">
+              <option value="">ทั้งหมด</option>
+              <option value="100">100 ตร.ว. ขึ้นไป</option>
+              <option value="400">1 ไร่ขึ้นไป</option>
+              <option value="2000">5 ไร่ขึ้นไป</option>
+              <option value="4000">10 ไร่ขึ้นไป</option>
+            </select>
+          </div>
+        </section>
+
+        <section>
+          <div class="listing-head">
+            <h2 data-i18n="latest">ทรัพย์แนะนำ</h2>
+            <span class="count" id="resultCount"></span>
+          </div>
+          <div class="cards" id="cards"></div>
+          <div class="empty" id="emptyState" hidden data-i18n="empty">ไม่พบทรัพย์ที่ตรงกับตัวกรอง ลองลดเงื่อนไขราคา ประเภท หรืออำเภอ</div>
+        </section>
+      </aside>
+
+      <section class="map-area" aria-label="Approximate property map">
+        <div id="map" role="application" aria-label="แผนที่จังหวัดเลยแบบโซนโดยประมาณ"></div>
+        <div class="map-tools" aria-label="Map controls">
+          <button id="zoomIn" type="button" aria-label="Zoom in">+</button>
+          <button id="zoomOut" type="button" aria-label="Zoom out">−</button>
+          <button id="centerMap" type="button" aria-label="Center map">⌂</button>
+        </div>
+        <div class="map-legend">
+          <strong data-i18n="mapNote">แผนที่แสดงโซน ไม่ใช่พิกัดจริง</strong>
+          <p data-i18n="mapText">ชี้เมาส์ที่หมุดเพื่อดูรูปตัวอย่าง ราคา และข้อมูลย่อ ตำแหน่งหมุดเป็นบริเวณโดยประมาณเพื่อป้องกันการติดต่อข้ามระบบ</p>
+        </div>
+        <div class="attribution">© OpenStreetMap contributors</div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="drawer" id="drawer" aria-label="Property detail">
+    <div class="drawer-top">
+      <div>
+        <span class="badge" id="detailCode"></span>
+        <h2 id="detailTitle"></h2>
+        <p id="detailSub" style="margin:0;color:var(--muted);"></p>
+      </div>
+      <button class="close" id="closeDrawer" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="photo" id="detailPhoto" aria-label="Property photo placeholder">
+      <span class="badge" data-i18n="photoNote">พื้นที่ใส่รูปทรัพย์จริง</span>
+      <span class="status" id="detailStatus"></span>
+    </div>
+    <div class="detail-grid" id="detailGrid"></div>
+    <section class="section">
+      <h3 data-i18n="sellingPoints">จุดเด่น</h3>
+      <ul id="detailHighlights"></ul>
+    </section>
+    <section class="section">
+      <h3 data-i18n="nearby">สถานที่สำคัญใกล้เคียง</h3>
+      <ul id="detailNearby"></ul>
+    </section>
+    <section class="section">
+      <h3 data-i18n="legalNoteTitle">หมายเหตุด้านข้อมูล</h3>
+      <p data-i18n="legalNote">เว็บไม่แสดงเลขเอกสารสิทธิ์และไม่เปิดพิกัดจริงต่อสาธารณะ ข้อมูลฉบับเต็มใช้เพื่อการนัดหมาย ตรวจเอกสาร และปิดดีลผ่านทีมเท่านั้น</p>
+    </section>
+    <section class="lead-box">
+      <h3 data-i18n="leadTitle">สนใจทรัพย์นี้</h3>
+      <form id="leadForm">
+        <input id="leadName" required placeholder="ชื่อของคุณ">
+        <input id="leadPhone" required placeholder="เบอร์โทรหรือ LINE ID">
+        <textarea id="leadMessage" rows="3" placeholder="ข้อความเพิ่มเติม เช่น งบประมาณ วันที่สะดวกดูทรัพย์"></textarea>
+        <label class="consent">
+          <input id="leadConsent" type="checkbox" required>
+          <span data-i18n="consentText">ฉันยินยอมให้ Loeiland เก็บและใช้ข้อมูลนี้เพื่อการติดต่อกลับ ให้ข้อมูลทรัพย์ นัดหมาย และบริการที่เกี่ยวข้อง</span>
+        </label>
+        <div class="lead-actions">
+          <button type="submit" data-i18n="saveLead">บันทึก lead</button>
+          <a id="lineLink" href="#" target="_blank" rel="noreferrer">LINE / Facebook</a>
+        </div>
+      </form>
+    </section>
+  </aside>
+
+  <aside class="drawer" id="submitDrawer" aria-label="Submit property">
+    <div class="drawer-top">
+      <div>
+        <span class="badge" data-i18n="submitBadge">ส่งข้อมูลให้ทีมตรวจ</span>
+        <h2 data-i18n="submitTitle">ฝากขายทรัพย์กับ Loeiland</h2>
+        <p class="helper" data-i18n="submitHelp">ข้อมูลจะเข้าคิวรอแอดมินตรวจสอบก่อนเผยแพร่ ไม่แสดงพิกัดจริงและเลขเอกสารสิทธิ์ต่อสาธารณะ</p>
+      </div>
+      <button class="close" id="closeSubmitDrawer" type="button" aria-label="Close">×</button>
+    </div>
+    <form id="submitPropertyForm" class="form-grid">
+      <div class="field">
+        <label for="ownerName" data-i18n="ownerName">ชื่อเจ้าของ/ผู้ฝากขาย</label>
+        <input id="ownerName" required placeholder="เช่น คุณสมชาย">
+      </div>
+      <div class="field">
+        <label for="ownerContact" data-i18n="ownerContact">เบอร์โทรหรือ LINE</label>
+        <input id="ownerContact" required placeholder="เบอร์โทร / LINE ID">
+      </div>
+      <div class="field wide">
+        <label for="submitTitleInput" data-i18n="propertyTitle">ชื่อประกาศ</label>
+        <input id="submitTitleInput" required placeholder="เช่น ที่ดินติดถนน โซนเชียงคาน เหมาะทำรีสอร์ต">
+      </div>
+      <div class="field">
+        <label for="submitType" data-i18n="propertyType">ประเภททรัพย์</label>
+        <select id="submitType" required>
+          <option value="ที่ดินเปล่า">ที่ดินเปล่า</option>
+          <option value="บ้าน">บ้าน</option>
+          <option value="สวน">สวน</option>
+          <option value="อาคารพาณิชย์">อาคารพาณิชย์</option>
+          <option value="รีสอร์ต">รีสอร์ต</option>
+          <option value="ที่นา/ที่ไร่">ที่นา/ที่ไร่</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="submitPrice" data-i18n="price">ราคา</label>
+        <input id="submitPrice" type="number" min="0" step="1000" required placeholder="เช่น 3500000">
+      </div>
+      <div class="field">
+        <label for="submitDistrict" data-i18n="district">อำเภอ</label>
+        <input id="submitDistrict" required placeholder="เช่น เมืองเลย">
+      </div>
+      <div class="field">
+        <label for="submitSubdistrict" data-i18n="subdistrict">ตำบล</label>
+        <input id="submitSubdistrict" required placeholder="เช่น กุดป่อง">
+      </div>
+      <div class="field wide">
+        <label for="submitZone" data-i18n="zone">โซนที่แสดงบนเว็บ</label>
+        <input id="submitZone" required placeholder="เช่น โซนตัวเมืองเลย / โซนเชียงคาน">
+      </div>
+      <div class="field">
+        <label for="submitRai">ไร่</label>
+        <input id="submitRai" type="number" min="0" value="0">
+      </div>
+      <div class="field">
+        <label for="submitNgan">งาน</label>
+        <input id="submitNgan" type="number" min="0" max="3" value="0">
+      </div>
+      <div class="field">
+        <label for="submitWah">ตร.ว.</label>
+        <input id="submitWah" type="number" min="0" value="0">
+      </div>
+      <div class="field">
+        <label for="submitPhoto" data-i18n="photoUrl">ลิงก์รูปตัวอย่าง</label>
+        <input id="submitPhoto" placeholder="https://...">
+      </div>
+      <div class="field">
+        <label for="submitLat" data-i18n="zoneLat">ละติจูดโซนโดยประมาณ</label>
+        <input id="submitLat" type="number" step="0.0001" placeholder="17.4860">
+      </div>
+      <div class="field">
+        <label for="submitLon" data-i18n="zoneLon">ลองจิจูดโซนโดยประมาณ</label>
+        <input id="submitLon" type="number" step="0.0001" placeholder="101.7220">
+      </div>
+      <div class="field">
+        <label for="submitFrontage" data-i18n="frontage">หน้ากว้าง</label>
+        <input id="submitFrontage" placeholder="เช่น ประมาณ 30 ม.">
+      </div>
+      <div class="field">
+        <label for="submitRoad" data-i18n="road">ถนน</label>
+        <input id="submitRoad" placeholder="เช่น ติดถนนสาธารณะ">
+      </div>
+      <div class="field">
+        <label for="submitUtilities" data-i18n="utilities">สาธารณูปโภค</label>
+        <input id="submitUtilities" placeholder="ไฟฟ้า น้ำประปา">
+      </div>
+      <div class="field">
+        <label for="submitDeed" data-i18n="deed">เอกสารสิทธิ์</label>
+        <input id="submitDeed" placeholder="โฉนด / น.ส.3 / อื่น ๆ">
+      </div>
+      <div class="field wide">
+        <label for="submitHighlights" data-i18n="highlights">จุดเด่น</label>
+        <textarea id="submitHighlights" rows="3" placeholder="ใส่จุดเด่น คั่นด้วยเครื่องหมาย , เช่น ใกล้ชุมชน, เหมาะสร้างบ้าน, เดินทางสะดวก"></textarea>
+      </div>
+      <div class="field wide">
+        <label for="submitNote" data-i18n="adminNote">หมายเหตุให้แอดมิน</label>
+        <textarea id="submitNote" rows="3" placeholder="ข้อมูลเพิ่มเติม เช่น ภาระจำนอง นัดดูเอกสารได้วันไหน"></textarea>
+      </div>
+      <div class="field wide">
+        <div class="inline-note" data-i18n="submitWarning">ระบบนี้เป็นคิวตรวจสอบแบบ MVP ข้อมูลจะเก็บในเครื่องนี้ก่อน หากต้องการใช้งานจริงควรต่อ Google Sheets หรือ backend</div>
+      </div>
+      <label class="consent wide">
+        <input id="submitConsent" type="checkbox" required>
+        <span data-i18n="ownerConsentText">ฉันยินยอมให้ Loeiland เก็บและใช้ข้อมูลเพื่อการตรวจสอบทรัพย์ ติดต่อกลับ ประเมินการรับฝากขาย และดำเนินการที่เกี่ยวข้อง</span>
+      </label>
+      <div class="lead-actions wide">
+        <button type="submit" data-i18n="sendForReview">ส่งให้แอดมินตรวจ</button>
+        <a id="submitContactLink" href="#" target="_blank" rel="noreferrer">LINE / Facebook</a>
+      </div>
+    </form>
+  </aside>
+
+  <aside class="drawer" id="buyerDrawer" aria-label="Buyer request">
+    <div class="drawer-top">
+      <div>
+        <span class="badge" data-i18n="buyerBadge">ระบบรับความต้องการซื้อ</span>
+        <h2 data-i18n="buyerTitle">บอกเราว่าอยากได้ที่ดินแบบไหน</h2>
+        <p class="helper" data-i18n="buyerHelp">ผู้ซื้อสามารถระบุแปลงที่สนใจ โซน งบประมาณ ขนาด และเงื่อนไขสำคัญ เพื่อให้ทีม Loeiland ช่วยคัดทรัพย์และติดต่อกลับ</p>
+      </div>
+      <button class="close" id="closeBuyerDrawer" type="button" aria-label="Close">×</button>
+    </div>
+    <form id="buyerRequestForm" class="form-grid">
+      <div class="field">
+        <label for="buyerName" data-i18n="buyerName">ชื่อผู้สนใจซื้อ</label>
+        <input id="buyerName" required placeholder="ชื่อของคุณ">
+      </div>
+      <div class="field">
+        <label for="buyerContact" data-i18n="buyerContact">เบอร์โทรหรือ LINE</label>
+        <input id="buyerContact" required placeholder="เบอร์โทร / LINE ID">
+      </div>
+      <div class="field wide">
+        <label for="buyerTargetProperty" data-i18n="targetProperty">แปลงที่สนใจ</label>
+        <select id="buyerTargetProperty"></select>
+      </div>
+      <div class="field">
+        <label for="buyerDistrict" data-i18n="district">อำเภอ</label>
+        <input id="buyerDistrict" placeholder="เช่น เมืองเลย / เชียงคาน">
+      </div>
+      <div class="field">
+        <label for="buyerZone" data-i18n="preferredZone">โซนที่ต้องการ</label>
+        <input id="buyerZone" placeholder="เช่น ใกล้เมือง / ริมโขง / ภูเรือ">
+      </div>
+      <div class="field">
+        <label for="buyerBudgetMin" data-i18n="budgetMin">งบต่ำสุด</label>
+        <input id="buyerBudgetMin" type="number" min="0" step="1000" placeholder="เช่น 1000000">
+      </div>
+      <div class="field">
+        <label for="buyerBudgetMax" data-i18n="budgetMax">งบสูงสุด</label>
+        <input id="buyerBudgetMax" type="number" min="0" step="1000" placeholder="เช่น 5000000">
+      </div>
+      <div class="field">
+        <label for="buyerMinRai" data-i18n="minRai">ขนาดขั้นต่ำ (ไร่)</label>
+        <input id="buyerMinRai" type="number" min="0" step="0.25" placeholder="เช่น 1">
+      </div>
+      <div class="field">
+        <label for="buyerPurpose" data-i18n="buyPurpose">วัตถุประสงค์</label>
+        <select id="buyerPurpose">
+          <option value="สร้างบ้าน">สร้างบ้าน</option>
+          <option value="เกษตร/สวน">เกษตร/สวน</option>
+          <option value="รีสอร์ต/ที่พัก">รีสอร์ต/ที่พัก</option>
+          <option value="ลงทุน">ลงทุน</option>
+          <option value="ค้าขาย/อาคารพาณิชย์">ค้าขาย/อาคารพาณิชย์</option>
+          <option value="อื่น ๆ">อื่น ๆ</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="buyerRoad" data-i18n="roadNeed">เงื่อนไขถนน</label>
+        <input id="buyerRoad" placeholder="เช่น ต้องติดถนนดำ / รถเข้าได้">
+      </div>
+      <div class="field">
+        <label for="buyerUtilities" data-i18n="utilityNeed">ไฟฟ้า/น้ำ</label>
+        <input id="buyerUtilities" placeholder="เช่น ต้องมีไฟฟ้า น้ำประปา">
+      </div>
+      <div class="field wide">
+        <label for="buyerDetail" data-i18n="buyerDetail">รายละเอียดเพิ่มเติม</label>
+        <textarea id="buyerDetail" rows="4" placeholder="เช่น อยากได้ที่ดินไม่ไกลโรงพยาบาล เหมาะสร้างบ้าน มีชุมชน ไม่ต้องติดถนนใหญ่"></textarea>
+      </div>
+      <div class="field wide">
+        <div class="inline-note" data-i18n="buyerWarning">ข้อมูลนี้ใช้เพื่อให้ทีมติดต่อกลับและคัดทรัพย์ที่เหมาะสม ไม่ใช่การจองหรือทำสัญญาซื้อขาย</div>
+      </div>
+      <label class="consent wide">
+        <input id="buyerConsent" type="checkbox" required>
+        <span data-i18n="buyerConsentText">ฉันยินยอมให้ Loeiland เก็บและใช้ข้อมูลความต้องการซื้อเพื่อการติดต่อกลับ คัดทรัพย์ และบริการที่เกี่ยวข้อง</span>
+      </label>
+      <div class="lead-actions wide">
+        <button type="submit" data-i18n="sendBuyerRequest">ส่งความต้องการซื้อ</button>
+        <a id="buyerContactLink" href="#" target="_blank" rel="noreferrer">LINE / Facebook</a>
+      </div>
+    </form>
+  </aside>
+
+  <aside class="drawer" id="adminDrawer" aria-label="Admin verification">
+    <div class="drawer-top">
+      <div>
+        <span class="badge" data-i18n="adminBadge">ระบบตรวจสอบข้อมูล</span>
+        <h2 data-i18n="adminTitle">แอดมินตรวจประกาศ</h2>
+        <p class="helper" data-i18n="adminHelp">ตรวจข้อมูลเจ้าของ ราคา ขนาด เอกสารสิทธิ์ และพิกัดโซนก่อนอนุมัติขึ้นเว็บ</p>
+      </div>
+      <button class="close" id="closeAdminDrawer" type="button" aria-label="Close">×</button>
+    </div>
+    <div class="admin-lock" id="adminLock">
+      <label for="adminPin" data-i18n="adminPin">รหัสแอดมิน</label>
+      <input id="adminPin" type="password" placeholder="ค่าเริ่มต้น 2468">
+      <button class="primary" id="adminLoginBtn" type="button" data-i18n="login">เข้าสู่ระบบตรวจสอบ</button>
+      <p class="helper" data-i18n="adminSecurity">สำหรับ MVP เท่านั้น รหัสนี้ไม่ได้ปลอดภัยเท่าระบบหลังบ้านจริง</p>
+    </div>
+    <div id="adminWorkspace" hidden>
+      <div class="admin-toolbar">
+        <strong id="adminSummary"></strong>
+        <div class="admin-actions">
+          <button class="ghost" id="adminRefreshBtn" type="button" data-i18n="refresh">รีเฟรช</button>
+          <button class="ghost" id="exportCsvBtn" type="button" data-i18n="exportCsv">Export CSV</button>
+        </div>
+      </div>
+      <div class="inline-note" data-i18n="verifyChecklist">เช็กอย่างน้อย: ตัวตนผู้ฝากขาย, สิทธิ์ขาย, เอกสารสิทธิ์, ภาระจำนอง, ราคา, ขนาด, ทางเข้าออก, และพิกัดที่ใช้เผยแพร่ต้องเป็นโซนโดยประมาณ</div>
+      <div class="admin-list" id="adminList"></div>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="privacyDrawer" aria-label="Privacy and terms">
+    <div class="drawer-top">
+      <div>
+        <span class="badge" data-i18n="privacyBadge">ข้อมูลส่วนบุคคล</span>
+        <h2 data-i18n="privacyTitle">Privacy / Terms</h2>
+        <p class="helper" data-i18n="privacyIntro">เงื่อนไขฉบับย่อสำหรับการทดลองใช้ระบบ Loeiland MVP</p>
+      </div>
+      <button class="close" id="closePrivacyDrawer" type="button" aria-label="Close">×</button>
+    </div>
+    <section class="section">
+      <h3 data-i18n="privacyUseTitle">การใช้ข้อมูล</h3>
+      <p data-i18n="privacyUseText">ข้อมูลชื่อ เบอร์โทร LINE รายละเอียดทรัพย์ และความต้องการซื้อ ใช้เพื่อการติดต่อกลับ คัดทรัพย์ นัดหมาย ตรวจสอบข้อมูล และให้บริการที่เกี่ยวข้องกับอสังหาริมทรัพย์เท่านั้น</p>
+    </section>
+    <section class="section">
+      <h3 data-i18n="privacyProtectTitle">การปกป้องข้อมูล</h3>
+      <p data-i18n="privacyProtectText">เว็บไม่แสดงเลขเอกสารสิทธิ์และไม่เปิดพิกัดจริงต่อสาธารณะ ข้อมูลสำคัญควรถูกตรวจสอบผ่านทีมงานก่อนเผยแพร่หรือใช้ประกอบการซื้อขาย</p>
+    </section>
+    <section class="section">
+      <h3 data-i18n="privacyTermsTitle">เงื่อนไขสำคัญ</h3>
+      <ul>
+        <li data-i18n="privacyTerm1">ข้อมูลบนเว็บเป็นข้อมูลเบื้องต้น ไม่ใช่คำเสนอขายหรือคำรับรองว่าทรัพย์ไม่มีภาระ</li>
+        <li data-i18n="privacyTerm2">ผู้ซื้อควรตรวจสอบเอกสารสิทธิ์ ภาระจำนอง ทางเข้าออก และข้อจำกัดทางกฎหมายก่อนทำสัญญา</li>
+        <li data-i18n="privacyTerm3">ระบบ MVP นี้ยังเก็บข้อมูลบางส่วนในเครื่องและควรเชื่อมต่อ Google Sheets หรือ backend ก่อนใช้งานจริงเต็มรูปแบบ</li>
+      </ul>
+    </section>
+  </aside>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const APP_CONFIG = {
+      facebookUrl: "https://www.facebook.com/",
+      lineUrl: "https://www.facebook.com/",
+      googleScriptUrl: "",
+      adminPin: "2468"
+    };
+
+    const starterProperties = [
+      {
+        id: "LL-0001",
+        title: "ที่ดินทำเลเมืองเลย เหมาะสร้างบ้านหรือออฟฟิศ",
+        titleEn: "Mueang Loei land for home or office",
+        type: "ที่ดินเปล่า",
+        typeEn: "Land",
+        district: "เมืองเลย",
+        subdistrict: "กุดป่อง",
+        zone: "โซนตัวเมืองเลย",
+        lat: 17.4865,
+        lon: 101.7222,
+        price: 2800000,
+        rai: 1,
+        ngan: 0,
+        wah: 45,
+        frontage: "ติดถนนชุมชนประมาณ 24 ม.",
+        road: "รถยนต์เข้าออกสะดวก",
+        utilities: "ไฟฟ้า น้ำประปา อินเทอร์เน็ตใกล้พื้นที่",
+        deed: "โฉนด / ไม่แสดงเลขเอกสาร",
+        encumbrance: "ตรวจสอบก่อนนัดหมาย",
+        status: "พร้อมขาย",
+        highlights: ["ใกล้เมือง เดินทางสะดวก", "เหมาะสร้างบ้านพักหรือสำนักงานขนาดเล็ก", "โซนมีชุมชนและสิ่งอำนวยความสะดวก"],
+        tags: ["เมืองเลย", "สร้างบ้าน", "ออฟฟิศ", "ถนน"],
+      },
+      {
+        id: "LL-0002",
+        title: "ที่ดินวิวแม่น้ำ โซนเชียงคาน เหมาะทำที่พัก",
+        titleEn: "Chiang Khan riverside-zone land for stay business",
+        type: "รีสอร์ต",
+        typeEn: "Resort",
+        district: "เชียงคาน",
+        subdistrict: "เชียงคาน",
+        zone: "โซนเชียงคาน",
+        lat: 17.8937,
+        lon: 101.6591,
+        price: 9600000,
+        rai: 3,
+        ngan: 2,
+        wah: 20,
+        frontage: "หน้ากว้างโดยประมาณ 45 ม.",
+        road: "ใกล้ถนนท่องเที่ยว",
+        utilities: "ไฟฟ้าและน้ำในบริเวณใกล้เคียง",
+        deed: "เอกสารสิทธิ์ตรวจสอบผ่านทีม",
+        encumbrance: "ไม่เปิดเผยต่อสาธารณะ",
+        status: "รับนัดดูทรัพย์",
+        highlights: ["เหมาะลงทุนที่พัก คาเฟ่ หรือบ้านพักตากอากาศ", "ใกล้แหล่งท่องเที่ยวสำคัญ", "ทำเลมี demand นักท่องเที่ยว"],
+        tags: ["เชียงคาน", "รีสอร์ต", "ท่องเที่ยว", "แม่น้ำ"],
+      },
+      {
+        id: "LL-0003",
+        title: "สวนผสมโซนวังสะพุง พื้นที่ใหญ่ ราคาเข้าถึงง่าย",
+        titleEn: "Wang Saphung mixed orchard with accessible price",
+        type: "สวน",
+        typeEn: "Orchard",
+        district: "วังสะพุง",
+        subdistrict: "ศรีสงคราม",
+        zone: "โซนวังสะพุง",
+        lat: 17.3009,
+        lon: 101.7677,
+        price: 4300000,
+        rai: 8,
+        ngan: 1,
+        wah: 0,
+        frontage: "หน้ากว้างประมาณ 70 ม.",
+        road: "ทางสาธารณะเข้าได้",
+        utilities: "มีไฟฟ้าใกล้พื้นที่ มีแหล่งน้ำตามฤดูกาล",
+        deed: "โฉนด / ไม่แสดงเลขเอกสาร",
+        encumbrance: "อยู่ระหว่างตรวจเอกสาร",
+        status: "พร้อมขาย",
+        highlights: ["เหมาะทำสวน บ้านสวน หรือถือระยะยาว", "ราคาเฉลี่ยต่อไร่น่าสนใจ", "เดินทางจากเมืองเลยไม่ไกล"],
+        tags: ["วังสะพุง", "สวน", "บ้านสวน", "ลงทุน"],
+      },
+      {
+        id: "LL-0004",
+        title: "อาคารพาณิชย์ใกล้แหล่งชุมชน ด่านซ้าย",
+        titleEn: "Commercial building near Dan Sai community",
+        type: "อาคารพาณิชย์",
+        typeEn: "Commercial",
+        district: "ด่านซ้าย",
+        subdistrict: "ด่านซ้าย",
+        zone: "โซนด่านซ้าย",
+        lat: 17.2804,
+        lon: 101.1465,
+        price: 3500000,
+        rai: 0,
+        ngan: 0,
+        wah: 34,
+        frontage: "หน้ากว้างประมาณ 4.5 ม.",
+        road: "ติดถนนในย่านการค้า",
+        utilities: "พร้อมไฟฟ้า น้ำประปา",
+        deed: "โฉนด / ไม่แสดงเลขเอกสาร",
+        encumbrance: "สอบถามทีม Loeiland",
+        status: "รับข้อเสนอ",
+        highlights: ["เหมาะเปิดร้าน สำนักงาน หรือปล่อยเช่า", "ใกล้ชุมชนและจุดบริการ", "ทรัพย์ประเภทใช้งานได้ทันที"],
+        tags: ["ด่านซ้าย", "อาคารพาณิชย์", "ปล่อยเช่า", "ค้าขาย"],
+      },
+      {
+        id: "LL-0005",
+        title: "ที่นาและที่ไร่โซนภูเรือ อากาศดี เหมาะทำเกษตร",
+        titleEn: "Phu Ruea farmland with cool climate",
+        type: "ที่นา/ที่ไร่",
+        typeEn: "Farm",
+        district: "ภูเรือ",
+        subdistrict: "หนองบัว",
+        zone: "โซนภูเรือ",
+        lat: 17.4534,
+        lon: 101.3629,
+        price: 7200000,
+        rai: 12,
+        ngan: 3,
+        wah: 50,
+        frontage: "หน้ากว้างประมาณ 90 ม.",
+        road: "ทางเข้าเหมาะรถกระบะ",
+        utilities: "ไฟฟ้าในชุมชนใกล้เคียง",
+        deed: "เอกสารสิทธิ์ตรวจสอบผ่านทีม",
+        encumbrance: "ตรวจสอบก่อนทำสัญญา",
+        status: "พร้อมขาย",
+        highlights: ["เหมาะทำเกษตร ที่พัก หรือถือครองระยะยาว", "โซนอากาศดี มีมูลค่าจากการท่องเที่ยว", "พื้นที่ใหญ่ต่อยอดได้หลายทาง"],
+        tags: ["ภูเรือ", "ที่ไร่", "ที่นา", "เกษตร"],
+      }
+    ];
+
+    const poi = [
+      { name: "โรงพยาบาลเลย", icon: "H", lat: 17.4921, lon: 101.7232 },
+      { name: "มหาวิทยาลัยราชภัฏเลย", icon: "U", lat: 17.3973, lon: 101.7238 },
+      { name: "ถนนคนเดินเชียงคาน", icon: "T", lat: 17.8973, lon: 101.6592 },
+      { name: "อุทยานแห่งชาติภูเรือ", icon: "P", lat: 17.5157, lon: 101.3447 },
+      { name: "ย่านการค้าด่านซ้าย", icon: "M", lat: 17.2804, lon: 101.1465 },
+      { name: "ตลาดวังสะพุง", icon: "M", lat: 17.3009, lon: 101.7677 }
+    ];
+
+    function readStorage(key, fallback = []) {
+      try {
+        return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function writeStorage(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function approvedProperties() {
+      return readStorage("loeilandApprovedProperties");
+    }
+
+    function pendingProperties() {
+      return readStorage("loeilandPendingProperties");
+    }
+
+    function buyerRequests() {
+      return readStorage("loeilandBuyerRequests");
+    }
+
+    function propertyLeads() {
+      return readStorage("loeilandLeads");
+    }
+
+    const CRM_STATUSES = ["ใหม่", "ติดต่อแล้ว", "นัดดูทรัพย์", "ต่อรอง", "ปิดดีล", "ยกเลิก"];
+
+    let properties = [...starterProperties, ...approvedProperties()];
+
+    const i18n = {
+      th: {
+        tagline: "ที่ดินและอสังหาริมทรัพย์จังหวัดเลย",
+        reset: "ล้างตัวกรอง",
+        facebook: "ติดต่อ Facebook",
+        buyerRequest: "แจ้งต้องการซื้อ",
+        submitProperty: "ฝากขายทรัพย์",
+        admin: "แอดมิน",
+        privacy: "Privacy/Terms",
+        hero: "ดูทรัพย์จังหวัดเลยจากแผนที่โซน",
+        heroText: "ค้นหาที่ดิน บ้าน สวน รีสอร์ต และทรัพย์ลงทุน โดยแสดงทำเลเป็นบริเวณโดยประมาณ ไม่เปิดพิกัดจริงก่อนติดต่อทีม Loeiland",
+        statListings: "รายการเริ่มต้น",
+        statDistricts: "อำเภอในจังหวัดเลย",
+        statMap: "ค่าแผนที่ช่วง MVP",
+        keyword: "ค้นหาคำสำคัญ",
+        propertyType: "ประเภททรัพย์",
+        district: "อำเภอ",
+        subdistrict: "ตำบล",
+        maxPrice: "ราคาสูงสุด",
+        minSize: "ขนาดขั้นต่ำ",
+        latest: "ทรัพย์แนะนำ",
+        empty: "ไม่พบทรัพย์ที่ตรงกับตัวกรอง ลองลดเงื่อนไขราคา ประเภท หรืออำเภอ",
+        mapNote: "แผนที่แสดงโซน ไม่ใช่พิกัดจริง",
+        mapText: "ชี้เมาส์ที่หมุดเพื่อดูรูปตัวอย่าง ราคา และข้อมูลย่อ ตำแหน่งหมุดเป็นบริเวณโดยประมาณเพื่อป้องกันการติดต่อข้ามระบบ",
+        photoNote: "พื้นที่ใส่รูปทรัพย์จริง",
+        sellingPoints: "จุดเด่น",
+        nearby: "สถานที่สำคัญใกล้เคียง",
+        legalNoteTitle: "หมายเหตุด้านข้อมูล",
+        legalNote: "เว็บไม่แสดงเลขเอกสารสิทธิ์และไม่เปิดพิกัดจริงต่อสาธารณะ ข้อมูลฉบับเต็มใช้เพื่อการนัดหมาย ตรวจเอกสาร และปิดดีลผ่านทีมเท่านั้น",
+        leadTitle: "สนใจทรัพย์นี้",
+        saveLead: "บันทึก lead",
+        consentText: "ฉันยินยอมให้ Loeiland เก็บและใช้ข้อมูลนี้เพื่อการติดต่อกลับ ให้ข้อมูลทรัพย์ นัดหมาย และบริการที่เกี่ยวข้อง",
+        ownerConsentText: "ฉันยินยอมให้ Loeiland เก็บและใช้ข้อมูลเพื่อการตรวจสอบทรัพย์ ติดต่อกลับ ประเมินการรับฝากขาย และดำเนินการที่เกี่ยวข้อง",
+        buyerConsentText: "ฉันยินยอมให้ Loeiland เก็บและใช้ข้อมูลความต้องการซื้อเพื่อการติดต่อกลับ คัดทรัพย์ และบริการที่เกี่ยวข้อง",
+        buyerBadge: "ระบบรับความต้องการซื้อ",
+        buyerTitle: "บอกเราว่าอยากได้ที่ดินแบบไหน",
+        buyerHelp: "ผู้ซื้อสามารถระบุแปลงที่สนใจ โซน งบประมาณ ขนาด และเงื่อนไขสำคัญ เพื่อให้ทีม Loeiland ช่วยคัดทรัพย์และติดต่อกลับ",
+        buyerName: "ชื่อผู้สนใจซื้อ",
+        buyerContact: "เบอร์โทรหรือ LINE",
+        targetProperty: "แปลงที่สนใจ",
+        preferredZone: "โซนที่ต้องการ",
+        budgetMin: "งบต่ำสุด",
+        budgetMax: "งบสูงสุด",
+        minRai: "ขนาดขั้นต่ำ (ไร่)",
+        buyPurpose: "วัตถุประสงค์",
+        roadNeed: "เงื่อนไขถนน",
+        utilityNeed: "ไฟฟ้า/น้ำ",
+        buyerDetail: "รายละเอียดเพิ่มเติม",
+        buyerWarning: "ข้อมูลนี้ใช้เพื่อให้ทีมติดต่อกลับและคัดทรัพย์ที่เหมาะสม ไม่ใช่การจองหรือทำสัญญาซื้อขาย",
+        sendBuyerRequest: "ส่งความต้องการซื้อ",
+        submitBadge: "ส่งข้อมูลให้ทีมตรวจ",
+        submitTitle: "ฝากขายทรัพย์กับ Loeiland",
+        submitHelp: "ข้อมูลจะเข้าคิวรอแอดมินตรวจสอบก่อนเผยแพร่ ไม่แสดงพิกัดจริงและเลขเอกสารสิทธิ์ต่อสาธารณะ",
+        ownerName: "ชื่อเจ้าของ/ผู้ฝากขาย",
+        ownerContact: "เบอร์โทรหรือ LINE",
+        propertyTitle: "ชื่อประกาศ",
+        price: "ราคา",
+        zone: "โซนที่แสดงบนเว็บ",
+        photoUrl: "ลิงก์รูปตัวอย่าง",
+        zoneLat: "ละติจูดโซนโดยประมาณ",
+        zoneLon: "ลองจิจูดโซนโดยประมาณ",
+        highlights: "จุดเด่น",
+        adminNote: "หมายเหตุให้แอดมิน",
+        submitWarning: "ระบบนี้เป็นคิวตรวจสอบแบบ MVP ข้อมูลจะเก็บในเครื่องนี้ก่อน หากต้องการใช้งานจริงควรต่อ Google Sheets หรือ backend",
+        sendForReview: "ส่งให้แอดมินตรวจ",
+        adminBadge: "ระบบตรวจสอบข้อมูล",
+        adminTitle: "แอดมินตรวจประกาศ",
+        adminHelp: "ตรวจข้อมูลเจ้าของ ราคา ขนาด เอกสารสิทธิ์ และพิกัดโซนก่อนอนุมัติขึ้นเว็บ",
+        adminPin: "รหัสแอดมิน",
+        login: "เข้าสู่ระบบตรวจสอบ",
+        adminSecurity: "สำหรับ MVP เท่านั้น รหัสนี้ไม่ได้ปลอดภัยเท่าระบบหลังบ้านจริง",
+        refresh: "รีเฟรช",
+        exportCsv: "Export CSV",
+        verifyChecklist: "เช็กอย่างน้อย: ตัวตนผู้ฝากขาย, สิทธิ์ขาย, เอกสารสิทธิ์, ภาระจำนอง, ราคา, ขนาด, ทางเข้าออก, และพิกัดที่ใช้เผยแพร่ต้องเป็นโซนโดยประมาณ",
+        privacyBadge: "ข้อมูลส่วนบุคคล",
+        privacyTitle: "Privacy / Terms",
+        privacyIntro: "เงื่อนไขฉบับย่อสำหรับการทดลองใช้ระบบ Loeiland MVP",
+        privacyUseTitle: "การใช้ข้อมูล",
+        privacyUseText: "ข้อมูลชื่อ เบอร์โทร LINE รายละเอียดทรัพย์ และความต้องการซื้อ ใช้เพื่อการติดต่อกลับ คัดทรัพย์ นัดหมาย ตรวจสอบข้อมูล และให้บริการที่เกี่ยวข้องกับอสังหาริมทรัพย์เท่านั้น",
+        privacyProtectTitle: "การปกป้องข้อมูล",
+        privacyProtectText: "เว็บไม่แสดงเลขเอกสารสิทธิ์และไม่เปิดพิกัดจริงต่อสาธารณะ ข้อมูลสำคัญควรถูกตรวจสอบผ่านทีมงานก่อนเผยแพร่หรือใช้ประกอบการซื้อขาย",
+        privacyTermsTitle: "เงื่อนไขสำคัญ",
+        privacyTerm1: "ข้อมูลบนเว็บเป็นข้อมูลเบื้องต้น ไม่ใช่คำเสนอขายหรือคำรับรองว่าทรัพย์ไม่มีภาระ",
+        privacyTerm2: "ผู้ซื้อควรตรวจสอบเอกสารสิทธิ์ ภาระจำนอง ทางเข้าออก และข้อจำกัดทางกฎหมายก่อนทำสัญญา",
+        privacyTerm3: "ระบบ MVP นี้ยังเก็บข้อมูลบางส่วนในเครื่องและควรเชื่อมต่อ Google Sheets หรือ backend ก่อนใช้งานจริงเต็มรูปแบบ",
+        all: "ทั้งหมด",
+        view: "ดูรายละเอียด",
+        focus: "เลือกทรัพย์นี้",
+        result: "รายการ",
+        size: "ขนาด",
+        pricePerRai: "ราคา/ไร่",
+        pricePerWah: "ราคา/ตร.ว.",
+        deed: "เอกสารสิทธิ์",
+        road: "ถนน",
+        utilities: "สาธารณูปโภค",
+        frontage: "หน้ากว้าง",
+        encumbrance: "ภาระ/สถานะเอกสาร",
+        contactSaved: "บันทึก lead ในเครื่องนี้แล้ว สำหรับระบบจริงควรส่งเข้า Google Sheets หรือ LINE OA",
+        buyerSaved: "บันทึกความต้องการซื้อแล้ว ทีมจะใช้ข้อมูลนี้ติดตามต่อ",
+        buyerRequestsCount: "คำขอซื้อ",
+        noBuyerRequests: "ยังไม่มีคำขอซื้อ",
+        buyerClosed: "ปิดคำขอซื้อแล้ว",
+        leadsCount: "lead สนใจทรัพย์",
+        noLeads: "ยังไม่มี lead สนใจทรัพย์",
+        statusUpdated: "อัปเดตสถานะแล้ว",
+        exported: "Export CSV แล้ว",
+        reviewSaved: "ส่งข้อมูลเข้าคิวรอตรวจสอบแล้ว",
+        approved: "อนุมัติประกาศแล้ว",
+        rejected: "ปฏิเสธ/ลบรายการแล้ว",
+        wrongPin: "รหัสแอดมินไม่ถูกต้อง",
+        noPending: "ยังไม่มีรายการรอตรวจสอบ",
+        pendingCount: "รายการรอตรวจ",
+      },
+      en: {
+        tagline: "Loei property and land marketplace",
+        reset: "Reset filters",
+        facebook: "Contact Facebook",
+        buyerRequest: "Buyer request",
+        submitProperty: "Submit property",
+        admin: "Admin",
+        privacy: "Privacy/Terms",
+        hero: "Explore Loei properties by zone map",
+        heroText: "Find land, homes, orchards, resorts, and investment assets. Locations are shown by approximate zone only before contacting Loeiland.",
+        statListings: "starter listings",
+        statDistricts: "districts in Loei",
+        statMap: "MVP map cost",
+        keyword: "Keyword",
+        propertyType: "Property type",
+        district: "District",
+        subdistrict: "Subdistrict",
+        maxPrice: "Max price",
+        minSize: "Minimum size",
+        latest: "Featured properties",
+        empty: "No matching properties. Try lowering your price, type, or district filters.",
+        mapNote: "Zone map, not exact coordinates",
+        mapText: "Hover a pin to preview sample land photo, price, and quick details. Pins are approximate zones to protect deal flow.",
+        photoNote: "Real property photo area",
+        sellingPoints: "Highlights",
+        nearby: "Nearby places",
+        legalNoteTitle: "Data note",
+        legalNote: "Public pages do not reveal title-deed numbers or exact coordinates. Full details are used for appointment, document review, and closing through the team.",
+        leadTitle: "I'm interested",
+        saveLead: "Save lead",
+        consentText: "I consent to Loeiland storing and using this information to contact me, provide property information, arrange appointments, and related services.",
+        ownerConsentText: "I consent to Loeiland storing and using this information to verify the property, contact me, assess listing suitability, and related actions.",
+        buyerConsentText: "I consent to Loeiland storing and using my buyer requirements for follow-up, property matching, and related services.",
+        buyerBadge: "Buyer requirement system",
+        buyerTitle: "Tell us what land you want",
+        buyerHelp: "Buyers can specify target listing, zone, budget, size, and key requirements so Loeiland can match suitable properties.",
+        buyerName: "Buyer name",
+        buyerContact: "Phone or LINE",
+        targetProperty: "Target listing",
+        preferredZone: "Preferred zone",
+        budgetMin: "Minimum budget",
+        budgetMax: "Maximum budget",
+        minRai: "Minimum size (rai)",
+        buyPurpose: "Purpose",
+        roadNeed: "Road requirement",
+        utilityNeed: "Electricity/water",
+        buyerDetail: "More details",
+        buyerWarning: "This request helps the team follow up and match properties. It is not a reservation or purchase agreement.",
+        sendBuyerRequest: "Send buyer request",
+        submitBadge: "Send for team review",
+        submitTitle: "Submit a property to Loeiland",
+        submitHelp: "Your submission is queued for admin review before publishing. Exact coordinates and deed numbers stay private.",
+        ownerName: "Owner or seller name",
+        ownerContact: "Phone or LINE",
+        propertyTitle: "Listing title",
+        price: "Price",
+        zone: "Public zone",
+        photoUrl: "Sample photo URL",
+        zoneLat: "Approximate zone latitude",
+        zoneLon: "Approximate zone longitude",
+        highlights: "Highlights",
+        adminNote: "Admin note",
+        submitWarning: "This MVP review queue stores data locally first. Production should connect to Google Sheets or a backend.",
+        sendForReview: "Send for review",
+        adminBadge: "Verification system",
+        adminTitle: "Admin review",
+        adminHelp: "Verify owner, price, size, deed, and public zone coordinates before publishing.",
+        adminPin: "Admin PIN",
+        login: "Open review queue",
+        adminSecurity: "MVP only. This PIN is not a secure production admin system.",
+        refresh: "Refresh",
+        exportCsv: "Export CSV",
+        verifyChecklist: "Check at least: seller identity, right to sell, title deed, mortgage/encumbrance, price, size, access road, and public coordinates must be approximate.",
+        privacyBadge: "Personal data",
+        privacyTitle: "Privacy / Terms",
+        privacyIntro: "Short terms for testing the Loeiland MVP.",
+        privacyUseTitle: "Data use",
+        privacyUseText: "Names, phone, LINE, property details, and buyer requirements are used only for follow-up, property matching, appointments, verification, and real-estate related services.",
+        privacyProtectTitle: "Data protection",
+        privacyProtectText: "The site does not publicly show title-deed numbers or exact coordinates. Sensitive data should be verified by the team before publishing or use in a transaction.",
+        privacyTermsTitle: "Key terms",
+        privacyTerm1: "Website information is preliminary and is not an offer or guarantee that a property is free of encumbrance.",
+        privacyTerm2: "Buyers should verify title deeds, mortgages, access roads, and legal restrictions before signing.",
+        privacyTerm3: "This MVP still stores some data locally and should connect to Google Sheets or a backend before full production use.",
+        all: "All",
+        view: "Details",
+        focus: "Select",
+        result: "results",
+        size: "Size",
+        pricePerRai: "Price/rai",
+        pricePerWah: "Price/sq.wah",
+        deed: "Title deed",
+        road: "Road",
+        utilities: "Utilities",
+        frontage: "Frontage",
+        encumbrance: "Document status",
+        contactSaved: "Lead saved locally. In production this should go to Google Sheets or LINE OA.",
+        buyerSaved: "Buyer request saved for follow-up.",
+        buyerRequestsCount: "buyer requests",
+        noBuyerRequests: "No buyer requests yet.",
+        buyerClosed: "Buyer request closed.",
+        leadsCount: "property leads",
+        noLeads: "No property leads yet.",
+        statusUpdated: "Status updated.",
+        exported: "CSV exported.",
+        reviewSaved: "Submission queued for admin review.",
+        approved: "Listing approved and published.",
+        rejected: "Submission rejected/removed.",
+        wrongPin: "Incorrect admin PIN.",
+        noPending: "No pending submissions.",
+        pendingCount: "pending submissions",
+      }
+    };
+
+    const mapEl = document.getElementById("map");
+    const cardsEl = document.getElementById("cards");
+    const drawer = document.getElementById("drawer");
+    const buyerDrawer = document.getElementById("buyerDrawer");
+    const submitDrawer = document.getElementById("submitDrawer");
+    const adminDrawer = document.getElementById("adminDrawer");
+    const privacyDrawer = document.getElementById("privacyDrawer");
+    const toast = document.getElementById("toast");
+    const typeFilter = document.getElementById("typeFilter");
+    const districtFilter = document.getElementById("districtFilter");
+    const subdistrictFilter = document.getElementById("subdistrictFilter");
+    const maxPrice = document.getElementById("maxPrice");
+    const minSize = document.getElementById("minSize");
+    const keyword = document.getElementById("keyword");
+    const resultCount = document.getElementById("resultCount");
+    const emptyState = document.getElementById("emptyState");
+    const adminWorkspace = document.getElementById("adminWorkspace");
+    const adminLock = document.getElementById("adminLock");
+
+    let lang = "th";
+    let filtered = [...properties];
+    let activeId = properties[0].id;
+    let zoom = 10;
+    let center = { lat: 17.486, lon: 101.58 };
+    let isDragging = false;
+    let dragStart = null;
+    let centerStart = null;
+
+    function money(value) {
+      return new Intl.NumberFormat(lang === "th" ? "th-TH" : "en-US", {
+        maximumFractionDigits: 0
+      }).format(value) + " ฿";
+    }
+
+    function cleanText(value) {
+      return String(value || "").trim().replace(/[<>]/g, "");
+    }
+
+    function validUrl(value) {
+      const text = cleanText(value);
+      if (!text) return "";
+      try {
+        const url = new URL(text);
+        return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function photoStyle(property) {
+      const photo = validUrl(property.photo);
+      if (!photo) return "";
+      return `style="background-image: linear-gradient(120deg, rgba(15,107,79,.16), rgba(31,42,36,.1)), url('${photo.replace(/'/g, "%27")}'); background-size: cover; background-position: center;"`;
+    }
+
+    function totalWah(property) {
+      return property.rai * 400 + property.ngan * 100 + property.wah;
+    }
+
+    function sizeText(property) {
+      if (lang === "en") return `${property.rai} rai ${property.ngan} ngan ${property.wah} sq.wah`;
+      return `${property.rai} ไร่ ${property.ngan} งาน ${property.wah} ตร.ว.`;
+    }
+
+    function ratePerRai(property) {
+      const wah = totalWah(property);
+      return wah ? property.price / (wah / 400) : 0;
+    }
+
+    function ratePerWah(property) {
+      const wah = totalWah(property);
+      return wah ? property.price / wah : 0;
+    }
+
+    function project(lat, lon, z = zoom) {
+      const sin = Math.sin(lat * Math.PI / 180);
+      const scale = 256 * Math.pow(2, z);
+      return {
+        x: (lon + 180) / 360 * scale,
+        y: (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * scale
+      };
+    }
+
+    function unproject(x, y, z = zoom) {
+      const scale = 256 * Math.pow(2, z);
+      const lon = x / scale * 360 - 180;
+      const n = Math.PI - 2 * Math.PI * y / scale;
+      const lat = 180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+      return { lat, lon };
+    }
+
+    function markerPosition(lat, lon) {
+      const centerPx = project(center.lat, center.lon);
+      const point = project(lat, lon);
+      return {
+        left: mapEl.clientWidth / 2 + point.x - centerPx.x,
+        top: mapEl.clientHeight / 2 + point.y - centerPx.y
+      };
+    }
+
+    function tileUrl(x, y, z) {
+      const max = Math.pow(2, z);
+      const wrappedX = ((x % max) + max) % max;
+      return `https://tile.openstreetmap.org/${z}/${wrappedX}/${y}.png`;
+    }
+
+    function hideMapPreview() {
+      mapEl.querySelector(".map-popup")?.remove();
+    }
+
+    function showMapPreview(property) {
+      hideMapPreview();
+      const pos = markerPosition(property.lat, property.lon);
+      const popup = document.createElement("div");
+      const width = mapEl.clientWidth || 800;
+      const height = mapEl.clientHeight || 600;
+      let left = pos.left + 18;
+      let top = pos.top - 170;
+      if (left + 264 > width - 12) left = pos.left - 282;
+      if (left < 12) left = 12;
+      if (top < 12) top = pos.top + 10;
+      if (top + 205 > height - 12) top = Math.max(12, height - 217);
+
+      popup.className = "map-popup";
+      popup.style.left = `${left}px`;
+      popup.style.top = `${top}px`;
+      popup.innerHTML = `
+        <div class="preview-photo" ${photoStyle(property)}><span>${i18n[lang].photoNote}</span></div>
+        <div class="preview-body">
+          <strong>${lang === "en" ? property.titleEn : property.title}</strong>
+          <div class="preview-price">${money(property.price)}</div>
+          <div class="preview-meta">
+            <span>${property.id}</span>
+            <span>${property.zone}</span>
+            <span>${sizeText(property)}</span>
+          </div>
+          <p class="preview-note">${property.highlights[0]}</p>
+        </div>
+      `;
+      mapEl.appendChild(popup);
+    }
+
+    function renderMap() {
+      const width = mapEl.clientWidth || 800;
+      const height = mapEl.clientHeight || 600;
+      const centerPx = project(center.lat, center.lon);
+      const startX = Math.floor((centerPx.x - width / 2) / 256);
+      const endX = Math.floor((centerPx.x + width / 2) / 256);
+      const startY = Math.floor((centerPx.y - height / 2) / 256);
+      const endY = Math.floor((centerPx.y + height / 2) / 256);
+      const maxTile = Math.pow(2, zoom);
+
+      mapEl.innerHTML = "";
+      for (let x = startX; x <= endX; x++) {
+        for (let y = startY; y <= endY; y++) {
+          if (y < 0 || y >= maxTile) continue;
+          const img = document.createElement("img");
+          img.className = "tile";
+          img.src = tileUrl(x, y, zoom);
+          img.alt = "";
+          img.draggable = false;
+          img.style.left = `${x * 256 - centerPx.x + width / 2}px`;
+          img.style.top = `${y * 256 - centerPx.y + height / 2}px`;
+          mapEl.appendChild(img);
+        }
+      }
+
+      poi.forEach(place => {
+        const pos = markerPosition(place.lat, place.lon);
+        const el = document.createElement("div");
+        el.className = "poi";
+        el.style.left = `${pos.left}px`;
+        el.style.top = `${pos.top}px`;
+        el.innerHTML = `<span class="poi-dot" title="${place.name}">${place.icon}</span>`;
+        mapEl.appendChild(el);
+      });
+
+      filtered.forEach((property, index) => {
+        const pos = markerPosition(property.lat, property.lon);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `marker ${property.id === activeId ? "active" : ""}`;
+        btn.style.left = `${pos.left}px`;
+        btn.style.top = `${pos.top}px`;
+        btn.innerHTML = `
+          <span class="zone-ring" aria-hidden="true"></span>
+          <span class="marker-core" aria-hidden="true">${index + 1}</span>
+          <span class="pin">
+            <b>${lang === "en" ? property.typeEn : property.type}</b>
+            <span>${property.zone} · ${money(property.price)}</span>
+          </span>
+        `;
+        btn.setAttribute("aria-label", `${property.id} ${property.zone} ${money(property.price)}`);
+        btn.addEventListener("mouseenter", () => showMapPreview(property));
+        btn.addEventListener("mouseleave", hideMapPreview);
+        btn.addEventListener("focus", () => showMapPreview(property));
+        btn.addEventListener("blur", hideMapPreview);
+        btn.addEventListener("click", () => {
+          hideMapPreview();
+          openProperty(property.id, true);
+        });
+        mapEl.appendChild(btn);
+      });
+    }
+
+    function populateFilters() {
+      const currentType = typeFilter.value;
+      const currentDistrict = districtFilter.value;
+      const currentSubdistrict = subdistrictFilter.value;
+      const types = [...new Set(properties.map(p => p.type))];
+      const districts = [...new Set(properties.map(p => p.district))];
+      typeFilter.innerHTML = `<option value="">${i18n[lang].all}</option>` + types.map(type => `<option value="${type}">${type}</option>`).join("");
+      districtFilter.innerHTML = `<option value="">${i18n[lang].all}</option>` + districts.map(district => `<option value="${district}">${district}</option>`).join("");
+      typeFilter.value = types.includes(currentType) ? currentType : "";
+      districtFilter.value = districts.includes(currentDistrict) ? currentDistrict : "";
+
+      const subdistricts = [...new Set(properties
+        .filter(property => !districtFilter.value || property.district === districtFilter.value)
+        .map(property => property.subdistrict)
+      )];
+      subdistrictFilter.innerHTML = `<option value="">${i18n[lang].all}</option>` + subdistricts.map(subdistrict => `<option value="${subdistrict}">${subdistrict}</option>`).join("");
+      subdistrictFilter.value = subdistricts.includes(currentSubdistrict) ? currentSubdistrict : "";
+    }
+
+    function filterProperties() {
+      const q = keyword.value.trim().toLowerCase();
+      filtered = properties.filter(property => {
+        const haystack = [
+          property.id, property.title, property.titleEn, property.type, property.district,
+          property.subdistrict, property.zone, ...property.tags, ...property.highlights
+        ].join(" ").toLowerCase();
+        return (!q || haystack.includes(q))
+          && (!typeFilter.value || property.type === typeFilter.value)
+          && (!districtFilter.value || property.district === districtFilter.value)
+          && (!subdistrictFilter.value || property.subdistrict === subdistrictFilter.value)
+          && (!maxPrice.value || property.price <= Number(maxPrice.value))
+          && (!minSize.value || totalWah(property) >= Number(minSize.value));
+      });
+      if (!filtered.some(item => item.id === activeId) && filtered[0]) activeId = filtered[0].id;
+      renderCards();
+      renderMap();
+    }
+
+    function renderCards() {
+      resultCount.textContent = `${filtered.length} ${i18n[lang].result}`;
+      document.getElementById("statTotal").textContent = properties.length;
+      emptyState.hidden = filtered.length > 0;
+      cardsEl.innerHTML = filtered.map(property => `
+        <article class="card ${property.id === activeId ? "active" : ""}" id="card-${property.id}">
+          <div class="photo" ${photoStyle(property)}>
+            <span class="badge">${property.id}</span>
+            <span class="status">${property.status}</span>
+          </div>
+          <div class="card-body">
+            <h3>${lang === "en" ? property.titleEn : property.title}</h3>
+            <div class="meta">
+              <span>${lang === "en" ? property.typeEn : property.type}</span>
+              <span>${property.district}</span>
+              <span>${sizeText(property)}</span>
+            </div>
+            <div class="price-row">
+              <span class="price">${money(property.price)}</span>
+              <span class="rate">${money(ratePerRai(property))}/${lang === "en" ? "rai" : "ไร่"}<br>${money(ratePerWah(property))}/${lang === "en" ? "sq.wah" : "ตร.ว."}</span>
+            </div>
+            <div class="card-actions">
+              <button type="button" onclick="focusProperty('${property.id}', true, true)">${i18n[lang].focus}</button>
+              <button type="button" onclick="openProperty('${property.id}', true)">${i18n[lang].view}</button>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function distanceKm(a, b) {
+      const R = 6371;
+      const dLat = (b.lat - a.lat) * Math.PI / 180;
+      const dLon = (b.lon - a.lon) * Math.PI / 180;
+      const lat1 = a.lat * Math.PI / 180;
+      const lat2 = b.lat * Math.PI / 180;
+      const s = Math.sin(dLat / 2) ** 2 + Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+      return 2 * R * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+    }
+
+    function nearbyList(property) {
+      return poi
+        .map(place => ({ ...place, km: distanceKm(property, place) }))
+        .sort((a, b) => a.km - b.km)
+        .slice(0, 3);
+    }
+
+    function scrollToPropertyDetail() {
+      drawer.scrollTo({ top: 0, behavior: "smooth" });
+      drawer.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function focusProperty(id, shouldScrollDetail = true, shouldShowPreview = false) {
+      const property = properties.find(item => item.id === id);
+      if (!property) return;
+      activeId = id;
+      center = { lat: property.lat, lon: property.lon };
+      zoom = Math.max(11, zoom);
+      renderCards();
+      renderMap();
+      if (shouldShowPreview) {
+        window.requestAnimationFrame(() => showMapPreview(property));
+      }
+      if (shouldScrollDetail) {
+        openProperty(id, false, true);
+      }
+    }
+
+    function openProperty(id, shouldFocus = false, shouldScrollDetail = true) {
+      const property = properties.find(item => item.id === id);
+      if (!property) return;
+      activeId = id;
+      if (shouldFocus) focusProperty(id, false, false);
+
+      document.getElementById("detailCode").textContent = property.id;
+      document.getElementById("detailTitle").textContent = lang === "en" ? property.titleEn : property.title;
+      document.getElementById("detailSub").textContent = `${property.zone} · ${property.subdistrict} · ${property.district}`;
+      document.getElementById("detailStatus").textContent = property.status;
+      const detailPhoto = document.getElementById("detailPhoto");
+      const style = photoStyle(property).match(/style="([^"]+)"/);
+      if (style) detailPhoto.setAttribute("style", style[1]);
+      else detailPhoto.removeAttribute("style");
+
+      const detailItems = [
+        [i18n[lang].size, sizeText(property)],
+        ["ราคา", money(property.price)],
+        [i18n[lang].pricePerRai, money(ratePerRai(property))],
+        [i18n[lang].pricePerWah, money(ratePerWah(property))],
+        [i18n[lang].deed, property.deed],
+        [i18n[lang].frontage, property.frontage],
+        [i18n[lang].road, property.road],
+        [i18n[lang].utilities, property.utilities],
+        [i18n[lang].encumbrance, property.encumbrance]
+      ];
+      document.getElementById("detailGrid").innerHTML = detailItems.map(([label, value]) => `
+        <div class="detail"><span>${label}</span><b>${value}</b></div>
+      `).join("");
+
+      document.getElementById("detailHighlights").innerHTML = property.highlights.map(item => `<li>${item}</li>`).join("");
+      document.getElementById("detailNearby").innerHTML = nearbyList(property).map(item => `<li>${item.name} ประมาณ ${item.km.toFixed(1)} กม.</li>`).join("");
+      const contactUrl = APP_CONFIG.lineUrl || APP_CONFIG.facebookUrl;
+      document.getElementById("lineLink").href = `${contactUrl}${contactUrl.includes("?") ? "&" : "?"}property=${encodeURIComponent(property.id)}`;
+      document.getElementById("leadMessage").value = `สนใจทรัพย์ ${property.id} (${property.zone})`;
+      drawer.classList.add("open");
+      if (shouldScrollDetail) {
+        window.requestAnimationFrame(scrollToPropertyDetail);
+      }
+    }
+
+    window.focusProperty = focusProperty;
+    window.openProperty = openProperty;
+
+    function translate() {
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.dataset.i18n;
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+      document.getElementById("langBtn").textContent = lang === "th" ? "EN" : "TH";
+      syncContactLinks();
+      populateFilters();
+      populateBuyerTargets();
+      filterProperties();
+      if (drawer.classList.contains("open")) openProperty(activeId, false);
+      if (!adminWorkspace.hidden) renderAdminQueue();
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.setTimeout(() => toast.classList.remove("show"), 3200);
+    }
+
+    function syncContactLinks() {
+      document.getElementById("contactPageLink").href = APP_CONFIG.facebookUrl;
+      document.getElementById("submitContactLink").href = APP_CONFIG.lineUrl || APP_CONFIG.facebookUrl;
+      document.getElementById("buyerContactLink").href = APP_CONFIG.lineUrl || APP_CONFIG.facebookUrl;
+    }
+
+    function populateBuyerTargets() {
+      const target = document.getElementById("buyerTargetProperty");
+      const current = target.value;
+      target.innerHTML = `<option value="">ยังไม่เจาะจงแปลง / ให้ทีมช่วยหา</option>` + properties.map(property => (
+        `<option value="${property.id}">${property.id} · ${property.zone} · ${money(property.price)}</option>`
+      )).join("");
+      target.value = properties.some(property => property.id === current) ? current : "";
+    }
+
+    async function sendToEndpoint(payload) {
+      if (!APP_CONFIG.googleScriptUrl) return;
+      try {
+        await fetch(APP_CONFIG.googleScriptUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+      } catch (error) {
+        console.warn("Google Script endpoint failed", error);
+      }
+    }
+
+    function refreshPublishedProperties() {
+      properties = [...starterProperties, ...approvedProperties()];
+      populateFilters();
+      populateBuyerTargets();
+      filterProperties();
+    }
+
+    function createSubmittedProperty() {
+      const title = cleanText(document.getElementById("submitTitleInput").value);
+      const type = cleanText(document.getElementById("submitType").value);
+      const district = cleanText(document.getElementById("submitDistrict").value);
+      const subdistrict = cleanText(document.getElementById("submitSubdistrict").value);
+      const zone = cleanText(document.getElementById("submitZone").value);
+      const highlights = cleanText(document.getElementById("submitHighlights").value)
+        .split(",")
+        .map(item => cleanText(item))
+        .filter(Boolean);
+
+      return {
+        id: `LL-${Date.now().toString().slice(-6)}`,
+        title,
+        titleEn: title,
+        type,
+        typeEn: type,
+        district,
+        subdistrict,
+        zone,
+        lat: Number(document.getElementById("submitLat").value) || 17.486,
+        lon: Number(document.getElementById("submitLon").value) || 101.58,
+        price: Number(document.getElementById("submitPrice").value) || 0,
+        rai: Number(document.getElementById("submitRai").value) || 0,
+        ngan: Number(document.getElementById("submitNgan").value) || 0,
+        wah: Number(document.getElementById("submitWah").value) || 0,
+        frontage: cleanText(document.getElementById("submitFrontage").value) || "รอตรวจสอบ",
+        road: cleanText(document.getElementById("submitRoad").value) || "รอตรวจสอบ",
+        utilities: cleanText(document.getElementById("submitUtilities").value) || "รอตรวจสอบ",
+        deed: cleanText(document.getElementById("submitDeed").value) || "รอตรวจสอบเอกสารสิทธิ์",
+        encumbrance: cleanText(document.getElementById("submitNote").value) || "รอตรวจสอบก่อนเผยแพร่",
+        status: "พร้อมขาย",
+        photo: validUrl(document.getElementById("submitPhoto").value),
+        highlights: highlights.length ? highlights.slice(0, 4) : ["รอแอดมินตรวจสอบจุดเด่น"],
+        tags: [type, district, subdistrict, zone],
+        ownerName: cleanText(document.getElementById("ownerName").value),
+        ownerContact: cleanText(document.getElementById("ownerContact").value),
+        adminNote: cleanText(document.getElementById("submitNote").value),
+        crmStatus: "ใหม่",
+        consent: true,
+        submittedAt: new Date().toISOString()
+      };
+    }
+
+    function createBuyerRequest() {
+      const targetId = cleanText(document.getElementById("buyerTargetProperty").value);
+      const targetProperty = properties.find(property => property.id === targetId);
+      return {
+        id: `BR-${Date.now().toString().slice(-6)}`,
+        buyerName: cleanText(document.getElementById("buyerName").value),
+        buyerContact: cleanText(document.getElementById("buyerContact").value),
+        targetPropertyId: targetId,
+        targetPropertyTitle: targetProperty ? targetProperty.title : "ยังไม่เจาะจงแปลง",
+        district: cleanText(document.getElementById("buyerDistrict").value),
+        preferredZone: cleanText(document.getElementById("buyerZone").value),
+        budgetMin: Number(document.getElementById("buyerBudgetMin").value) || 0,
+        budgetMax: Number(document.getElementById("buyerBudgetMax").value) || 0,
+        minRai: Number(document.getElementById("buyerMinRai").value) || 0,
+        purpose: cleanText(document.getElementById("buyerPurpose").value),
+        roadNeed: cleanText(document.getElementById("buyerRoad").value),
+        utilityNeed: cleanText(document.getElementById("buyerUtilities").value),
+        detail: cleanText(document.getElementById("buyerDetail").value),
+        status: "ใหม่",
+        crmStatus: "ใหม่",
+        consent: true,
+        createdAt: new Date().toISOString()
+      };
+    }
+
+    function statusSelect(collection, index, currentStatus) {
+      const value = currentStatus || "ใหม่";
+      return `
+        <div class="crm-row">
+          <span><b>CRM:</b></span>
+          <select onchange="updateCrmStatus('${collection}', ${index}, this.value)">
+            ${CRM_STATUSES.map(status => `<option value="${status}" ${status === value ? "selected" : ""}>${status}</option>`).join("")}
+          </select>
+        </div>
+      `;
+    }
+
+    function renderAdminQueue() {
+      const pending = pendingProperties();
+      const buyers = buyerRequests();
+      const leads = propertyLeads();
+      document.getElementById("adminSummary").textContent = `${pending.length} ${i18n[lang].pendingCount} · ${buyers.length} ${i18n[lang].buyerRequestsCount} · ${leads.length} ${i18n[lang].leadsCount}`;
+      const adminList = document.getElementById("adminList");
+      if (!pending.length && !buyers.length && !leads.length) {
+        adminList.innerHTML = `<div class="empty" style="margin:0;">${i18n[lang].noPending} / ${i18n[lang].noBuyerRequests} / ${i18n[lang].noLeads}</div>`;
+        return;
+      }
+
+      const pendingHtml = pending.map((property, index) => `
+        <article class="submission-card">
+          <h3>${property.id} · ${property.title}</h3>
+          <p><b>ผู้ฝากขาย:</b> ${property.ownerName || "-"} · ${property.ownerContact || "-"}</p>
+          <p><b>ทำเล:</b> ${property.zone} · ${property.subdistrict} · ${property.district}</p>
+          <p><b>ราคา/ขนาด:</b> ${money(property.price)} · ${sizeText(property)}</p>
+          <p><b>เอกสาร/ถนน:</b> ${property.deed} · ${property.road}</p>
+          <p><b>หมายเหตุ:</b> ${property.adminNote || "-"}</p>
+          ${statusSelect("pending", index, property.crmStatus)}
+          <div class="submission-actions">
+            <button type="button" onclick="approveSubmission(${index})">อนุมัติขึ้นเว็บ</button>
+            <button class="reject" type="button" onclick="rejectSubmission(${index})">ปฏิเสธ/ลบ</button>
+          </div>
+        </article>
+      `).join("");
+
+      const buyerHtml = buyers.map((request, index) => `
+        <article class="submission-card">
+          <h3>${request.id} · ต้องการซื้อ${request.targetPropertyId ? ` ${request.targetPropertyId}` : " / ยังไม่เจาะจงแปลง"}</h3>
+          <p><b>ผู้สนใจ:</b> ${request.buyerName || "-"} · ${request.buyerContact || "-"}</p>
+          <p><b>แปลง/โซน:</b> ${request.targetPropertyTitle || "-"} · ${request.preferredZone || "-"} · ${request.district || "-"}</p>
+          <p><b>งบประมาณ:</b> ${request.budgetMin ? money(request.budgetMin) : "-"} ถึง ${request.budgetMax ? money(request.budgetMax) : "-"} · ขั้นต่ำ ${request.minRai || 0} ไร่</p>
+          <p><b>วัตถุประสงค์:</b> ${request.purpose || "-"} · ถนน: ${request.roadNeed || "-"} · ไฟ/น้ำ: ${request.utilityNeed || "-"}</p>
+          <p><b>รายละเอียด:</b> ${request.detail || "-"}</p>
+          ${statusSelect("buyers", index, request.crmStatus || request.status)}
+          <div class="submission-actions">
+            <button type="button" onclick="focusBuyerTarget('${request.targetPropertyId}')">ดูแปลงที่สนใจ</button>
+            <button class="reject" type="button" onclick="closeBuyerRequest(${index})">ปิดคำขอ</button>
+          </div>
+        </article>
+      `).join("");
+
+      const leadHtml = leads.map((lead, index) => `
+        <article class="submission-card">
+          <h3>${lead.id || `LEAD-${index + 1}`} · สนใจทรัพย์ ${lead.propertyId || "-"}</h3>
+          <p><b>ผู้สนใจ:</b> ${lead.name || "-"} · ${lead.phone || "-"}</p>
+          <p><b>ข้อความ:</b> ${lead.message || "-"}</p>
+          <p><b>วันที่:</b> ${lead.createdAt || "-"}</p>
+          ${statusSelect("leads", index, lead.crmStatus)}
+          <div class="submission-actions">
+            <button type="button" onclick="focusBuyerTarget('${lead.propertyId || ""}')">ดูทรัพย์</button>
+            <button class="reject" type="button" onclick="closeLead(${index})">ปิด lead</button>
+          </div>
+        </article>
+      `).join("");
+
+      adminList.innerHTML = `${pendingHtml}${buyerHtml}${leadHtml}`;
+    }
+
+    function approveSubmission(index) {
+      const pending = pendingProperties();
+      const property = pending[index];
+      if (!property) return;
+      pending.splice(index, 1);
+      const approved = approvedProperties();
+      approved.push({ ...property, reviewedAt: new Date().toISOString() });
+      writeStorage("loeilandPendingProperties", pending);
+      writeStorage("loeilandApprovedProperties", approved);
+      refreshPublishedProperties();
+      renderAdminQueue();
+      showToast(i18n[lang].approved);
+    }
+
+    function rejectSubmission(index) {
+      const pending = pendingProperties();
+      if (!pending[index]) return;
+      pending.splice(index, 1);
+      writeStorage("loeilandPendingProperties", pending);
+      renderAdminQueue();
+      showToast(i18n[lang].rejected);
+    }
+
+    function closeBuyerRequest(index) {
+      const requests = buyerRequests();
+      if (!requests[index]) return;
+      requests.splice(index, 1);
+      writeStorage("loeilandBuyerRequests", requests);
+      renderAdminQueue();
+      showToast(i18n[lang].buyerClosed);
+    }
+
+    function closeLead(index) {
+      const leads = propertyLeads();
+      if (!leads[index]) return;
+      leads.splice(index, 1);
+      writeStorage("loeilandLeads", leads);
+      renderAdminQueue();
+      showToast(i18n[lang].buyerClosed);
+    }
+
+    function updateCrmStatus(collection, index, status) {
+      const map = {
+        pending: ["loeilandPendingProperties", pendingProperties],
+        buyers: ["loeilandBuyerRequests", buyerRequests],
+        leads: ["loeilandLeads", propertyLeads]
+      };
+      const config = map[collection];
+      if (!config) return;
+      const [key, getter] = config;
+      const rows = getter();
+      if (!rows[index]) return;
+      rows[index].crmStatus = status;
+      rows[index].statusUpdatedAt = new Date().toISOString();
+      writeStorage(key, rows);
+      showToast(i18n[lang].statusUpdated);
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? "").replace(/"/g, '""');
+      return `"${text}"`;
+    }
+
+    function flattenForCsv(type, item) {
+      return {
+        type,
+        id: item.id || "",
+        status: item.crmStatus || item.status || "",
+        name: item.ownerName || item.buyerName || item.name || "",
+        contact: item.ownerContact || item.buyerContact || item.phone || "",
+        propertyId: item.targetPropertyId || item.propertyId || item.id || "",
+        title: item.title || item.targetPropertyTitle || "",
+        district: item.district || "",
+        zone: item.zone || item.preferredZone || "",
+        price: item.price || "",
+        budgetMin: item.budgetMin || "",
+        budgetMax: item.budgetMax || "",
+        size: item.rai !== undefined ? `${item.rai}-${item.ngan}-${item.wah}` : "",
+        purpose: item.purpose || "",
+        message: item.message || item.detail || item.adminNote || "",
+        createdAt: item.createdAt || item.submittedAt || ""
+      };
+    }
+
+    function exportCsv() {
+      const rows = [
+        ...propertyLeads().map(item => flattenForCsv("lead", item)),
+        ...buyerRequests().map(item => flattenForCsv("buyer_request", item)),
+        ...pendingProperties().map(item => flattenForCsv("pending_property", item)),
+        ...approvedProperties().map(item => flattenForCsv("approved_property", item))
+      ];
+      const headers = ["type", "id", "status", "name", "contact", "propertyId", "title", "district", "zone", "price", "budgetMin", "budgetMax", "size", "purpose", "message", "createdAt"];
+      const csv = "\uFEFF" + [
+        headers.join(","),
+        ...rows.map(row => headers.map(header => csvEscape(row[header])).join(","))
+      ].join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `loeiland-crm-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast(i18n[lang].exported);
+    }
+
+    function focusBuyerTarget(id) {
+      if (!id) {
+        showToast("คำขอนี้ยังไม่เจาะจงแปลง");
+        return;
+      }
+      adminDrawer.classList.remove("open");
+      focusProperty(id, true, true);
+    }
+
+    window.approveSubmission = approveSubmission;
+    window.rejectSubmission = rejectSubmission;
+    window.closeBuyerRequest = closeBuyerRequest;
+    window.closeLead = closeLead;
+    window.updateCrmStatus = updateCrmStatus;
+    window.focusBuyerTarget = focusBuyerTarget;
+
+    function panBy(dx, dy) {
+      const centerPx = project(center.lat, center.lon);
+      center = unproject(centerPx.x + dx, centerPx.y + dy);
+      renderMap();
+    }
+
+    mapEl.addEventListener("pointerdown", event => {
+      hideMapPreview();
+      isDragging = true;
+      dragStart = { x: event.clientX, y: event.clientY };
+      centerStart = project(center.lat, center.lon);
+      mapEl.setPointerCapture(event.pointerId);
+    });
+
+    mapEl.addEventListener("pointermove", event => {
+      if (!isDragging) return;
+      const dx = event.clientX - dragStart.x;
+      const dy = event.clientY - dragStart.y;
+      center = unproject(centerStart.x - dx, centerStart.y - dy);
+      renderMap();
+    });
+
+    mapEl.addEventListener("pointerup", () => { isDragging = false; });
+    mapEl.addEventListener("pointercancel", () => { isDragging = false; });
+    mapEl.addEventListener("wheel", event => {
+      event.preventDefault();
+      zoom = Math.max(8, Math.min(13, zoom + (event.deltaY < 0 ? 1 : -1)));
+      renderMap();
+    }, { passive: false });
+
+    document.getElementById("zoomIn").addEventListener("click", () => {
+      zoom = Math.min(13, zoom + 1);
+      renderMap();
+    });
+    document.getElementById("zoomOut").addEventListener("click", () => {
+      zoom = Math.max(8, zoom - 1);
+      renderMap();
+    });
+    document.getElementById("centerMap").addEventListener("click", () => {
+      center = { lat: 17.486, lon: 101.58 };
+      zoom = 10;
+      renderMap();
+    });
+
+    document.getElementById("closeDrawer").addEventListener("click", () => drawer.classList.remove("open"));
+    document.getElementById("buyerRequestBtn").addEventListener("click", () => {
+      drawer.classList.remove("open");
+      submitDrawer.classList.remove("open");
+      adminDrawer.classList.remove("open");
+      privacyDrawer.classList.remove("open");
+      populateBuyerTargets();
+      buyerDrawer.classList.add("open");
+    });
+    document.getElementById("submitPropertyBtn").addEventListener("click", () => {
+      drawer.classList.remove("open");
+      buyerDrawer.classList.remove("open");
+      adminDrawer.classList.remove("open");
+      privacyDrawer.classList.remove("open");
+      submitDrawer.classList.add("open");
+    });
+    document.getElementById("adminBtn").addEventListener("click", () => {
+      drawer.classList.remove("open");
+      buyerDrawer.classList.remove("open");
+      submitDrawer.classList.remove("open");
+      privacyDrawer.classList.remove("open");
+      adminDrawer.classList.add("open");
+      renderAdminQueue();
+    });
+    document.getElementById("privacyBtn").addEventListener("click", () => {
+      drawer.classList.remove("open");
+      buyerDrawer.classList.remove("open");
+      submitDrawer.classList.remove("open");
+      adminDrawer.classList.remove("open");
+      privacyDrawer.classList.add("open");
+    });
+    document.getElementById("closeBuyerDrawer").addEventListener("click", () => buyerDrawer.classList.remove("open"));
+    document.getElementById("closeSubmitDrawer").addEventListener("click", () => submitDrawer.classList.remove("open"));
+    document.getElementById("closeAdminDrawer").addEventListener("click", () => adminDrawer.classList.remove("open"));
+    document.getElementById("closePrivacyDrawer").addEventListener("click", () => privacyDrawer.classList.remove("open"));
+    document.getElementById("adminLoginBtn").addEventListener("click", () => {
+      if (document.getElementById("adminPin").value !== APP_CONFIG.adminPin) {
+        showToast(i18n[lang].wrongPin);
+        return;
+      }
+      adminLock.hidden = true;
+      adminWorkspace.hidden = false;
+      renderAdminQueue();
+    });
+    document.getElementById("adminRefreshBtn").addEventListener("click", renderAdminQueue);
+    document.getElementById("exportCsvBtn").addEventListener("click", exportCsv);
+    document.getElementById("langBtn").addEventListener("click", () => {
+      lang = lang === "th" ? "en" : "th";
+      translate();
+    });
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      keyword.value = "";
+      typeFilter.value = "";
+      districtFilter.value = "";
+      subdistrictFilter.value = "";
+      maxPrice.value = "";
+      minSize.value = "";
+      populateFilters();
+      filterProperties();
+    });
+
+    districtFilter.addEventListener("change", () => {
+      populateFilters();
+      filterProperties();
+    });
+
+    [keyword, typeFilter, subdistrictFilter, maxPrice, minSize].forEach(el => {
+      el.addEventListener("input", filterProperties);
+      el.addEventListener("change", filterProperties);
+    });
+
+    document.getElementById("leadForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const lead = {
+        id: `LD-${Date.now().toString().slice(-6)}`,
+        propertyId: activeId,
+        name: cleanText(document.getElementById("leadName").value),
+        phone: cleanText(document.getElementById("leadPhone").value),
+        message: cleanText(document.getElementById("leadMessage").value),
+        crmStatus: "ใหม่",
+        consent: true,
+        createdAt: new Date().toISOString()
+      };
+      const leads = propertyLeads();
+      leads.push(lead);
+      writeStorage("loeilandLeads", leads);
+      showToast(i18n[lang].contactSaved);
+      event.target.reset();
+      sendToEndpoint({ type: "lead", lead });
+    });
+
+    document.getElementById("submitPropertyForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const property = createSubmittedProperty();
+      const pending = pendingProperties();
+      pending.push(property);
+      writeStorage("loeilandPendingProperties", pending);
+      sendToEndpoint({ type: "property_review", property });
+      showToast(i18n[lang].reviewSaved);
+      event.target.reset();
+      submitDrawer.classList.remove("open");
+      renderAdminQueue();
+    });
+
+    document.getElementById("buyerRequestForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const request = createBuyerRequest();
+      const requests = buyerRequests();
+      requests.push(request);
+      writeStorage("loeilandBuyerRequests", requests);
+      sendToEndpoint({ type: "buyer_request", request });
+      showToast(i18n[lang].buyerSaved);
+      event.target.reset();
+      buyerDrawer.classList.remove("open");
+      renderAdminQueue();
+    });
+
+    window.addEventListener("resize", renderMap);
+
+    syncContactLinks();
+    populateFilters();
+    populateBuyerTargets();
+    translate();
+    openProperty(activeId, false, false);
+    drawer.classList.remove("open");
+  </script>
+</body>
+</html>
