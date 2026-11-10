@@ -45,6 +45,7 @@ pnpm exec next typegen && pnpm exec tsc --noEmit   # typecheck (ต้อง typ
 
 - `next.config.ts` เปิด **`cacheComponents: true`** ไว้ (ค่าเริ่มต้นของ create-next-app) แคชด้วย `"use cache"` + `cacheLife` / `cacheTag` และ revalidate ด้วย `revalidateTag` / `updateTag` ไม่ใช้ `export const revalidate` แบบ ISR เดิม · อ่าน `node_modules/next/dist/docs/` ก่อนเขียนเรื่อง caching, routing และ proxy
 - Tailwind v4 โหลดผ่าน `@tailwindcss/turbopack` (ตั้งใน `next.config.ts`) และตั้งค่า theme ใน `src/app/globals.css` ด้วย `@theme` ไม่มี `tailwind.config`
+- **i18n (next-intl):** หน้าสาธารณะอยู่ใต้ `src/app/[locale]/` ซึ่งเป็นที่อยู่ของ `<html lang>` · ทุก page/layout ใต้ `[locale]` ต้องเรียก `setRequestLocale(locale)` ไม่อย่างนั้นหน้าจะไม่ static · ใช้ `Link` / `redirect` / `useRouter` จาก `@/i18n/navigation` ไม่ใช่จาก `next/*` · ข้อความอยู่ใน `messages/{th,en}.json` และ type ของ key ยึดตาม `th.json` (`src/global.d.ts`) จึงต้องเพิ่ม key ให้ครบทั้งสองไฟล์ · `/admin` อยู่นอก `[locale]` และ `proxy.ts` ข้ามไว้แล้ว
 
 ## สิ่งที่ mockup กำหนดไว้ (ต้องรักษาไว้ในตัวจริง)
 

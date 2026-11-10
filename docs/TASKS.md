@@ -15,8 +15,8 @@
 > อัปเดตทุกครั้งที่จบรอบการทำงาน — คนหรือ Claude ที่มาทำต่อจะอ่านส่วนนี้ก่อน
 
 - **เฟสปัจจุบัน:** P0 — 🟨 กำลังทำ (branch `feat/p0-setup`)
-- **task ที่กำลังทำ:** P0-01 ✅ · P0-02 ✅
-- **ขั้นต่อไป:** P0-03 next-intl
+- **task ที่กำลังทำ:** P0-01 ✅ · P0-02 ✅ · P0-03 ✅
+- **ขั้นต่อไป:** P0-04 Supabase (ต้องให้เจ้าของสร้าง project และให้ key ก่อน)
 - **ค้างอยู่ / รอคนตัดสินใจ:** D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
 - **หมายเหตุสำหรับรอบถัดไป:**
   - `cacheComponents: true` เปิดอยู่ → แคชด้วย `"use cache"` / `cacheTag` ไม่ใช่ `revalidate` แบบเดิม
@@ -26,6 +26,7 @@
   - `AGENTS.md` ถูกเขียนซ้ำโดย `next dev` ให้ commit ไว้ อย่าลบ
   - ลบหน้า/route แล้ว typecheck อาจพังเพราะ type เก่าใน `.next/dev/types` → ลบ `.next/dev` แล้วรันใหม่ (ควรใส่ไว้ใน script `typecheck` ตอน P0-05)
   - Tailwind v4 ตัด CSS variable ที่ไม่มี class ใช้ทิ้ง จึงใช้ `@theme static` · ปุ่ม/ช่องกรอกสูง 44px (mockup ใช้ 38px) เพื่อให้แตะบนมือถือได้
+  - i18n: `<html>` อยู่ใน `app/[locale]/layout.tsx` · `app/layout.tsx` แค่คืน children · `app/not-found.tsx` มี `<html>` ของตัวเอง (404 ชั่วคราว ทำเต็มใน P1-08) · ทุกหน้าใต้ `[locale]` ต้องเรียก `setRequestLocale(locale)` ถึงจะ static ได้
   - Chrome headless บังคับความกว้างขั้นต่ำประมาณ 500px ภาพ screenshot มือถือจึงดูล้นจอ ให้ใช้ device emulation ของ Playwright แทน
 
 ---
@@ -42,7 +43,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 | เฟส | สถานะ | task เสร็จ/ทั้งหมด |
 |---|---|---|
-| P0 ตั้งต้น | 🟨 กำลังทำ | 2/6 |
+| P0 ตั้งต้น | 🟨 กำลังทำ | 3/6 |
 | P1 ข้อมูล + หน้าสาธารณะ | ⬜ | 0/8 |
 | P3 บางส่วน (ก่อน M1) | ⬜ | 0/4 |
 | 🚀 M1 เปิดตัวแบบย่อ | ⬜ | 0/6 |
@@ -68,11 +69,11 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [x] ตั้งฟอนต์ Noto Sans Thai ด้วย `next/font` ใน root layout (subset thai + latin)
   - [x] สร้าง `components/ui/Button`, `Field` (+ `Input` `Select` `Textarea`), `Badge` ที่ใช้ token + `lib/cn.ts`
   - [x] หน้าทดสอบ token ชั่วคราว ดูสีครบ (screenshot desktop/มือถือ) แล้วลบทิ้ง
-- [ ] **P0-03** next-intl
-  - [ ] `npm i next-intl` + `src/i18n/routing.ts` (`locales: ['th','en']`, `defaultLocale: 'th'`, prefix ทุก locale)
-  - [ ] ตั้ง middleware/proxy ของ next-intl (ตามชื่อไฟล์ของเวอร์ชัน Next.js ที่ใช้)
-  - [ ] `src/app/[locale]/layout.tsx` + `messages/th.json`, `messages/en.json`
-  - [ ] `/` redirect ไป `/th` · เปิด `/th` และ `/en` ได้
+- [x] **P0-03** next-intl
+  - [x] `pnpm add next-intl` (4.14.9) + `src/i18n/routing.ts` (`locales: ['th','en']`, `defaultLocale: 'th'`, prefix ทุก locale) + `request.ts` + `navigation.ts`
+  - [x] `src/proxy.ts` ใช้ middleware ของ next-intl (ข้าม `api`, `admin`, `_next`, ไฟล์ที่มีนามสกุล)
+  - [x] `src/app/[locale]/layout.tsx` (มี `<html lang>`, ฟอนต์, metadata ตามภาษา, `setRequestLocale`) + `messages/th.json`, `messages/en.json` + type ของ key ข้อความใน `src/global.d.ts`
+  - [x] `/` redirect ไป `/th` (หรือ `/en` ถ้าเบราว์เซอร์ตั้งภาษาอังกฤษ) · `/th` และ `/en` เป็นหน้า static · URL ผิดได้ 404
 - [ ] **P0-04** Supabase
   - [ ] สร้าง project region สิงคโปร์ เก็บ URL + publishable key + secret key
   - [ ] `npm i @supabase/supabase-js @supabase/ssr` + `npx supabase init` + `supabase link`
@@ -294,6 +295,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 ## บันทึกความคืบหน้า
 ใหม่สุดอยู่บน · 1 บรรทัดต่อรอบการทำงาน: วันที่ — ทำอะไร (รหัส task) — ค้างอะไร
 
+- 2026-11-10 — P0-03 เสร็จ: next-intl 4.14 + `proxy.ts` · `/th` `/en` static · ต่อไป P0-04 (รอ Supabase project)
 - 2026-11-10 — P0-02 เสร็จ: design tokens (`@theme static`), ฟอนต์ Noto Sans Thai, `Button` / `Field` / `Badge` · เพิ่ม milestone 🚀 M1 เปิดตัวแบบย่อ · ต่อไป P0-03
 - 2026-11-10 — P0-01 เสร็จ: scaffold Next.js 16 ด้วย pnpm บน `feat/p0-setup` ลบ boilerplate · ต่อไป P0-02
 
