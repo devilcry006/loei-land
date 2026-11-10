@@ -57,21 +57,31 @@
 ## 4. Database schema
 
 ```sql
+-- enum เก็บเป็นรหัสภาษาอังกฤษ · ป้ายที่แสดงอยู่ใน messages/{th,en}.json
+property_type  = land | house | orchard | commercial | resort | farm     -- ที่ดินเปล่า บ้าน สวน อาคารพาณิชย์ รีสอร์ต ที่นา/ที่ไร่
+property_state = pending | approved | rejected | sold | archived
+listing_status = available | viewing | offers                              -- พร้อมขาย / รับนัดดูทรัพย์ / รับข้อเสนอ (ป้ายบนการ์ด)
+crm_status     = new | contacted | viewing | negotiating | won | cancelled -- ใหม่ → ติดต่อแล้ว → นัดดูทรัพย์ → ต่อรอง → ปิดดีล / ยกเลิก
+
 -- สาธารณะ: anon อ่านได้เฉพาะ state = 'approved'
+-- ข้อความสองภาษาใช้ _th (บังคับ) + _en (ว่างได้ หน้าเว็บ fallback เป็น _th)
 properties (
-  id uuid pk, code text unique,            -- LL-0001
-  slug text unique,
-  title_th, title_en, type, district, subdistrict, zone,
+  id uuid pk, code text unique,            -- LL-0001 · ว่างได้จนกว่าจะเผยแพร่
+  slug text unique,                        -- ว่างได้จนกว่าจะเผยแพร่
+  title_th, title_en, type property_type,
+  district fk districts.slug, subdistrict, -- (district, subdistrict) fk subdistricts
+  zone_th, zone_en,
   zone_lat, zone_lon numeric(9,6),         -- พิกัดที่เบลอแล้ว
   zone_radius_m int default 800,
-  price bigint, rai int, ngan int, wah numeric,
+  price bigint, rai int, ngan int (0–3), wah numeric(5,2) (0–<100),
   total_wah numeric generated always as (rai*400 + ngan*100 + wah) stored,
-  frontage, road, utilities,
+  frontage_th/_en, road_th/_en, utilities_th/_en,
   deed_type text,                          -- ประเภทเอกสาร ไม่เก็บเลข
-  listing_status text,                     -- พร้อมขาย / รับนัดดูทรัพย์ / รับข้อเสนอ (ป้ายบนการ์ด)
-  highlights text[], tags text[],
-  state text default 'pending',            -- pending | approved | rejected | sold | archived
+  listing_status listing_status,
+  highlights_th text[], highlights_en text[], tags text[],
+  state property_state default 'pending',
   published_at, created_at, updated_at
+  -- check: state='approved' ต้องมี code, slug, zone_lat/lon, published_at
 )
 
 -- ลับ 1:1 — anon ไม่มีสิทธิ์ใด ๆ · สร้างพร้อมกันตั้งแต่ตอน submit
@@ -81,19 +91,20 @@ property_private (
   consent_at, consent_version, ip_hash, created_at
 )
 
-property_photos (id, property_id, storage_path, sort_order, is_cover, alt_th, alt_en)
-leads           (id, property_id, name, contact, message, crm_status, consent_at, consent_version, ip_hash, created_at)
+property_photos (id, property_id, storage_path unique, sort_order, is_cover, alt_th, alt_en, created_at)  -- รูปปกได้ 1 รูปต่อทรัพย์
+leads           (id, property_id, name, contact, message, crm_status, consent_at, consent_version, ip_hash, created_at, updated_at)
 buyer_requests  (id, name, contact, target_property_id, district, preferred_zone, budget_min, budget_max,
-                 min_rai, purpose, road_need, utility_need, detail, crm_status, consent_at, consent_version, ip_hash, created_at)
-crm_events      (id, entity_type, entity_id, from_status, to_status, actor_id, note, created_at)
-audit_log       (id, actor_id, action, entity_type, entity_id, created_at)
-districts       (slug, name_th, name_en, center_lat, center_lon)   -- 14 อำเภอ
-subdistricts    (district_slug, name_th, name_en)
-poi             (id, name_th, name_en, kind, lat, lon)            -- ยกมาจาก landmark ใน mockup
+                 min_rai, purpose, road_need, utility_need, detail, crm_status, consent_at, consent_version, ip_hash, created_at, updated_at)
+crm_events      (id, entity_type lead|buyer_request|property, entity_id, from_status, to_status, actor_id, note, created_at)
+audit_log       (id, actor_id, action, entity_type, entity_id, meta jsonb, created_at)
+admins          (user_id pk fk auth.users, created_at)                -- รายชื่อแอดมินสำหรับ RLS
+districts       (slug pk, name_th, name_en, center_lat, center_lon)   -- 14 อำเภอ
+subdistricts    (district_slug, slug, name_th, name_en)              -- pk (district_slug, slug)
+poi             (id, name_th, name_en, kind, lat, lon)                -- ยกมาจาก landmark ใน mockup
 ```
 
 **RLS:** anon อ่านได้แค่ `properties` (approved), รูปของทรัพย์ที่ approved, `districts`/`subdistricts`/`poi` · ตารางอื่นปิดทั้งหมด · แอดมิน (authenticated + อยู่ในรายชื่อแอดมิน) ทำได้ทุกอย่าง
-`crm_status`: `ใหม่ → ติดต่อแล้ว → นัดดูทรัพย์ → ต่อรอง → ปิดดีล / ยกเลิก` (ตาม `CRM_STATUSES` ใน mockup)
+`crm_status` ตาม `CRM_STATUSES` ใน mockup แต่เก็บเป็นรหัสอังกฤษ (ดู enum ด้านบน)
 
 ---
 

@@ -23,7 +23,523 @@ export type Database = {
   };
   public: {
     Tables: {
-      [_ in never]: never;
+      admins: {
+        Row: {
+          created_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      audit_log: {
+        Row: {
+          action: string;
+          actor_id: string | null;
+          created_at: string;
+          entity_id: string | null;
+          entity_type: string;
+          id: number;
+          meta: NonNullable<Json>;
+        };
+        ComputedFields: never;
+        Insert: {
+          action: string;
+          actor_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type: string;
+          id?: never;
+          meta?: NonNullable<Json>;
+        };
+        Update: {
+          action?: string;
+          actor_id?: string | null;
+          created_at?: string;
+          entity_id?: string | null;
+          entity_type?: string;
+          id?: never;
+          meta?: NonNullable<Json>;
+        };
+        Relationships: [];
+      };
+      buyer_requests: {
+        Row: {
+          budget_max: number | null;
+          budget_min: number | null;
+          consent_at: string;
+          consent_version: string;
+          contact: string;
+          created_at: string;
+          crm_status: Database["public"]["Enums"]["crm_status"];
+          detail: string | null;
+          district: string | null;
+          id: string;
+          ip_hash: string | null;
+          min_rai: number | null;
+          name: string;
+          preferred_zone: string | null;
+          purpose: string | null;
+          road_need: string | null;
+          target_property_id: string | null;
+          updated_at: string;
+          utility_need: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          budget_max?: number | null;
+          budget_min?: number | null;
+          consent_at: string;
+          consent_version: string;
+          contact: string;
+          created_at?: string;
+          crm_status?: Database["public"]["Enums"]["crm_status"];
+          detail?: string | null;
+          district?: string | null;
+          id?: string;
+          ip_hash?: string | null;
+          min_rai?: number | null;
+          name: string;
+          preferred_zone?: string | null;
+          purpose?: string | null;
+          road_need?: string | null;
+          target_property_id?: string | null;
+          updated_at?: string;
+          utility_need?: string | null;
+        };
+        Update: {
+          budget_max?: number | null;
+          budget_min?: number | null;
+          consent_at?: string;
+          consent_version?: string;
+          contact?: string;
+          created_at?: string;
+          crm_status?: Database["public"]["Enums"]["crm_status"];
+          detail?: string | null;
+          district?: string | null;
+          id?: string;
+          ip_hash?: string | null;
+          min_rai?: number | null;
+          name?: string;
+          preferred_zone?: string | null;
+          purpose?: string | null;
+          road_need?: string | null;
+          target_property_id?: string | null;
+          updated_at?: string;
+          utility_need?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "buyer_requests_district_fkey";
+            columns: ["district"];
+            isOneToOne: false;
+            referencedRelation: "districts";
+            referencedColumns: ["slug"];
+          },
+          {
+            foreignKeyName: "buyer_requests_target_property_id_fkey";
+            columns: ["target_property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      crm_events: {
+        Row: {
+          actor_id: string | null;
+          created_at: string;
+          entity_id: string;
+          entity_type: Database["public"]["Enums"]["crm_entity"];
+          from_status: string | null;
+          id: number;
+          note: string | null;
+          to_status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          actor_id?: string | null;
+          created_at?: string;
+          entity_id: string;
+          entity_type: Database["public"]["Enums"]["crm_entity"];
+          from_status?: string | null;
+          id?: never;
+          note?: string | null;
+          to_status: string;
+        };
+        Update: {
+          actor_id?: string | null;
+          created_at?: string;
+          entity_id?: string;
+          entity_type?: Database["public"]["Enums"]["crm_entity"];
+          from_status?: string | null;
+          id?: never;
+          note?: string | null;
+          to_status?: string;
+        };
+        Relationships: [];
+      };
+      districts: {
+        Row: {
+          center_lat: number;
+          center_lon: number;
+          name_en: string;
+          name_th: string;
+          slug: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          center_lat: number;
+          center_lon: number;
+          name_en: string;
+          name_th: string;
+          slug: string;
+        };
+        Update: {
+          center_lat?: number;
+          center_lon?: number;
+          name_en?: string;
+          name_th?: string;
+          slug?: string;
+        };
+        Relationships: [];
+      };
+      leads: {
+        Row: {
+          consent_at: string;
+          consent_version: string;
+          contact: string;
+          created_at: string;
+          crm_status: Database["public"]["Enums"]["crm_status"];
+          id: string;
+          ip_hash: string | null;
+          message: string | null;
+          name: string;
+          property_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          consent_at: string;
+          consent_version: string;
+          contact: string;
+          created_at?: string;
+          crm_status?: Database["public"]["Enums"]["crm_status"];
+          id?: string;
+          ip_hash?: string | null;
+          message?: string | null;
+          name: string;
+          property_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          consent_at?: string;
+          consent_version?: string;
+          contact?: string;
+          created_at?: string;
+          crm_status?: Database["public"]["Enums"]["crm_status"];
+          id?: string;
+          ip_hash?: string | null;
+          message?: string | null;
+          name?: string;
+          property_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "leads_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      poi: {
+        Row: {
+          id: number;
+          kind: string;
+          lat: number;
+          lon: number;
+          name_en: string;
+          name_th: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          id?: never;
+          kind: string;
+          lat: number;
+          lon: number;
+          name_en: string;
+          name_th: string;
+        };
+        Update: {
+          id?: never;
+          kind?: string;
+          lat?: number;
+          lon?: number;
+          name_en?: string;
+          name_th?: string;
+        };
+        Relationships: [];
+      };
+      properties: {
+        Row: {
+          code: string | null;
+          created_at: string;
+          deed_type: string | null;
+          district: string;
+          frontage_en: string | null;
+          frontage_th: string | null;
+          highlights_en: string[];
+          highlights_th: string[];
+          id: string;
+          listing_status: Database["public"]["Enums"]["listing_status"];
+          ngan: number;
+          price: number;
+          published_at: string | null;
+          rai: number;
+          road_en: string | null;
+          road_th: string | null;
+          slug: string | null;
+          state: Database["public"]["Enums"]["property_state"];
+          subdistrict: string | null;
+          tags: string[];
+          title_en: string | null;
+          title_th: string;
+          total_wah: number | null;
+          type: Database["public"]["Enums"]["property_type"];
+          updated_at: string;
+          utilities_en: string | null;
+          utilities_th: string | null;
+          wah: number;
+          zone_en: string | null;
+          zone_lat: number | null;
+          zone_lon: number | null;
+          zone_radius_m: number;
+          zone_th: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          code?: string | null;
+          created_at?: string;
+          deed_type?: string | null;
+          district: string;
+          frontage_en?: string | null;
+          frontage_th?: string | null;
+          highlights_en?: string[];
+          highlights_th?: string[];
+          id?: string;
+          listing_status?: Database["public"]["Enums"]["listing_status"];
+          ngan?: number;
+          price: number;
+          published_at?: string | null;
+          rai?: number;
+          road_en?: string | null;
+          road_th?: string | null;
+          slug?: string | null;
+          state?: Database["public"]["Enums"]["property_state"];
+          subdistrict?: string | null;
+          tags?: string[];
+          title_en?: string | null;
+          title_th: string;
+          total_wah?: never;
+          type: Database["public"]["Enums"]["property_type"];
+          updated_at?: string;
+          utilities_en?: string | null;
+          utilities_th?: string | null;
+          wah?: number;
+          zone_en?: string | null;
+          zone_lat?: number | null;
+          zone_lon?: number | null;
+          zone_radius_m?: number;
+          zone_th: string;
+        };
+        Update: {
+          code?: string | null;
+          created_at?: string;
+          deed_type?: string | null;
+          district?: string;
+          frontage_en?: string | null;
+          frontage_th?: string | null;
+          highlights_en?: string[];
+          highlights_th?: string[];
+          id?: string;
+          listing_status?: Database["public"]["Enums"]["listing_status"];
+          ngan?: number;
+          price?: number;
+          published_at?: string | null;
+          rai?: number;
+          road_en?: string | null;
+          road_th?: string | null;
+          slug?: string | null;
+          state?: Database["public"]["Enums"]["property_state"];
+          subdistrict?: string | null;
+          tags?: string[];
+          title_en?: string | null;
+          title_th?: string;
+          total_wah?: never;
+          type?: Database["public"]["Enums"]["property_type"];
+          updated_at?: string;
+          utilities_en?: string | null;
+          utilities_th?: string | null;
+          wah?: number;
+          zone_en?: string | null;
+          zone_lat?: number | null;
+          zone_lon?: number | null;
+          zone_radius_m?: number;
+          zone_th?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "properties_district_fkey";
+            columns: ["district"];
+            isOneToOne: false;
+            referencedRelation: "districts";
+            referencedColumns: ["slug"];
+          },
+          {
+            foreignKeyName: "properties_district_subdistrict_fkey";
+            columns: ["district", "subdistrict"];
+            isOneToOne: false;
+            referencedRelation: "subdistricts";
+            referencedColumns: ["district_slug", "slug"];
+          },
+        ];
+      };
+      property_photos: {
+        Row: {
+          alt_en: string | null;
+          alt_th: string | null;
+          created_at: string;
+          id: string;
+          is_cover: boolean;
+          property_id: string;
+          sort_order: number;
+          storage_path: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          alt_en?: string | null;
+          alt_th?: string | null;
+          created_at?: string;
+          id?: string;
+          is_cover?: boolean;
+          property_id: string;
+          sort_order?: number;
+          storage_path: string;
+        };
+        Update: {
+          alt_en?: string | null;
+          alt_th?: string | null;
+          created_at?: string;
+          id?: string;
+          is_cover?: boolean;
+          property_id?: string;
+          sort_order?: number;
+          storage_path?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "property_photos_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: false;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      property_private: {
+        Row: {
+          admin_note: string | null;
+          consent_at: string | null;
+          consent_version: string | null;
+          created_at: string;
+          deed_number: string | null;
+          encumbrance: string | null;
+          exact_lat: number | null;
+          exact_lon: number | null;
+          ip_hash: string | null;
+          owner_contact: string | null;
+          owner_name: string | null;
+          property_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          admin_note?: string | null;
+          consent_at?: string | null;
+          consent_version?: string | null;
+          created_at?: string;
+          deed_number?: string | null;
+          encumbrance?: string | null;
+          exact_lat?: number | null;
+          exact_lon?: number | null;
+          ip_hash?: string | null;
+          owner_contact?: string | null;
+          owner_name?: string | null;
+          property_id: string;
+        };
+        Update: {
+          admin_note?: string | null;
+          consent_at?: string | null;
+          consent_version?: string | null;
+          created_at?: string;
+          deed_number?: string | null;
+          encumbrance?: string | null;
+          exact_lat?: number | null;
+          exact_lon?: number | null;
+          ip_hash?: string | null;
+          owner_contact?: string | null;
+          owner_name?: string | null;
+          property_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "property_private_property_id_fkey";
+            columns: ["property_id"];
+            isOneToOne: true;
+            referencedRelation: "properties";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      subdistricts: {
+        Row: {
+          district_slug: string;
+          name_en: string;
+          name_th: string;
+          slug: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          district_slug: string;
+          name_en: string;
+          name_th: string;
+          slug: string;
+        };
+        Update: {
+          district_slug?: string;
+          name_en?: string;
+          name_th?: string;
+          slug?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subdistricts_district_slug_fkey";
+            columns: ["district_slug"];
+            isOneToOne: false;
+            referencedRelation: "districts";
+            referencedColumns: ["slug"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -32,7 +548,11 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      crm_entity: "lead" | "buyer_request" | "property";
+      crm_status: "new" | "contacted" | "viewing" | "negotiating" | "won" | "cancelled";
+      listing_status: "available" | "viewing" | "offers";
+      property_state: "pending" | "approved" | "rejected" | "sold" | "archived";
+      property_type: "land" | "house" | "orchard" | "commercial" | "resort" | "farm";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -146,6 +666,12 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      crm_entity: ["lead", "buyer_request", "property"],
+      crm_status: ["new", "contacted", "viewing", "negotiating", "won", "cancelled"],
+      listing_status: ["available", "viewing", "offers"],
+      property_state: ["pending", "approved", "rejected", "sold", "archived"],
+      property_type: ["land", "house", "orchard", "commercial", "resort", "farm"],
+    },
   },
 } as const;

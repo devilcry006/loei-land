@@ -15,9 +15,9 @@
 
 > อัปเดตทุกครั้งที่จบรอบการทำงาน — คนหรือ Claude ที่มาทำต่อจะอ่านส่วนนี้ก่อน
 
-- **เฟสปัจจุบัน:** P0 ✅ เสร็จ → P1 ถัดไป (merge เข้า main แล้ว · P1 ให้แตก branch ใหม่)
+- **เฟสปัจจุบัน:** P1 🟨 (branch `p1-schema` ยังไม่ merge)
 - **task ที่กำลังทำ:** —
-- **ขั้นต่อไป:** P1-01 migration schema (เริ่ม `pnpm db:start` ก่อนทุกครั้ง)
+- **ขั้นต่อไป:** P1-02 RLS policy (เริ่ม `pnpm db:start` ก่อนทุกครั้ง) · RLS เปิดทุกตารางแล้ว เหลือเขียน policy + function `is_admin()` จากตาราง `admins` + test
 - **ค้างอยู่ / รอคนตัดสินใจ:** บัญชี Supabase cloud / Vercel / Sentry + push CI ย้ายไป M1-05 แล้ว · D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
 - **หมายเหตุสำหรับรอบถัดไป:**
   - `cacheComponents: true` เปิดอยู่ → แคชด้วย `"use cache"` / `cacheTag` ไม่ใช่ `revalidate` แบบเดิม
@@ -27,6 +27,7 @@
   - ใช้ `pnpm typecheck` เสมอ (ลบ type เก่าใน `.next/dev/types` + typegen ให้แล้ว) อย่ารัน `tsc` ตรง ๆ · รัน `pnpm check` ก่อน commit
   - Tailwind v4 ตัด CSS variable ที่ไม่มี class ใช้ทิ้ง จึงใช้ `@theme static` · ปุ่ม/ช่องกรอกสูง 44px (mockup ใช้ 38px) เพื่อให้แตะบนมือถือได้
   - i18n: `<html>` อยู่ใน `app/[locale]/layout.tsx` · `app/layout.tsx` แค่คืน children · `app/not-found.tsx` มี `<html>` ของตัวเอง (404 ชั่วคราว ทำเต็มใน P1-08) · ทุกหน้าใต้ `[locale]` ต้องเรียก `setRequestLocale(locale)` ถึงจะ static ได้
+  - schema: enum เก็บรหัสอังกฤษ (`property_type`, `listing_status`, `crm_status` ฯลฯ) ป้าย th/en ต้องไปอยู่ใน messages · ข้อความทรัพย์เป็นคู่ `_th`/`_en` (`_en` ว่างได้ → fallback) · `code`/`slug`/`zone_lat/lon` ว่างได้จนกว่าจะเผยแพร่ (check `approved_is_publishable` บังคับตอน approved) · subdistrict อ้างด้วย slug แบบ fk คู่ `(district, subdistrict)`
   - Chrome headless บังคับความกว้างขั้นต่ำประมาณ 500px ภาพ screenshot มือถือจึงดูล้นจอ ให้ใช้ device emulation ของ Playwright แทน
 
 ---
@@ -44,7 +45,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 | เฟส                     | สถานะ    | task เสร็จ/ทั้งหมด |
 | ----------------------- | -------- | ------------------ |
 | P0 ตั้งต้น              | ✅ เสร็จ | 6/6                |
-| P1 ข้อมูล + หน้าสาธารณะ | ⬜       | 0/8                |
+| P1 ข้อมูล + หน้าสาธารณะ | 🟨       | 1/8                |
 | P3 บางส่วน (ก่อน M1)    | ⬜       | 0/4                |
 | 🚀 M1 เปิดตัวแบบย่อ     | ⬜       | 0/6                |
 | P2 แผนที่ Longdo        | ⬜       | 0/5                |
@@ -97,14 +98,14 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 **เสร็จเมื่อ:** หน้าแรกแสดงทรัพย์จาก DB กรองได้ครบ 6 ตัวกรองเหมือน mockup · `curl /th/property/<slug>` ได้ HTML ที่มีเนื้อหาครบ · contract test ยืนยันว่า query สาธารณะไม่คืนฟิลด์ลับ
 
-- [ ] **P1-01** migration schema
-  - [ ] ตาราง `properties` (รวม `total_wah` generated + index `state`, `district`, `total_wah`)
-  - [ ] ตาราง `property_private`, `property_photos`
-  - [ ] ตาราง `leads`, `buyer_requests`, `crm_events`, `audit_log`
-  - [ ] ตาราง `districts`, `subdistricts`, `poi`
-  - [ ] trigger `updated_at` + generate TypeScript types (`supabase gen types`)
+- [x] **P1-01** migration schema
+  - [x] ตาราง `properties` (รวม `total_wah` generated + index `state`, `district`, `total_wah`)
+  - [x] ตาราง `property_private`, `property_photos`
+  - [x] ตาราง `leads`, `buyer_requests`, `crm_events`, `audit_log`
+  - [x] ตาราง `districts`, `subdistricts`, `poi` + `admins` (รายชื่อแอดมินสำหรับ RLS)
+  - [x] trigger `updated_at` + generate TypeScript types (`pnpm db:types`)
 - [ ] **P1-02** RLS
-  - [ ] เปิด RLS ทุกตาราง
+  - [x] เปิด RLS ทุกตาราง (ทำไว้ใน migration ของ P1-01 เพื่อให้ deny by default ตั้งแต่แรก)
   - [ ] policy anon: `properties` เฉพาะ approved · รูปของทรัพย์ approved · `districts`/`subdistricts`/`poi`
   - [ ] policy แอดมิน (ตรวจจากตารางรายชื่อแอดมิน)
   - [ ] test: anon อ่าน `property_private` / `leads` / ทรัพย์ pending ไม่ได้ · anon insert ตรงไม่ได้
@@ -302,12 +303,14 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 | 2026-11-10 | เวอร์ชัน           | Next.js 16.4.6 · React 19.3 · Tailwind 4.3 (ผ่าน `@tailwindcss/turbopack`) · TypeScript 5.9                 | ได้จาก create-next-app ณ วันที่ scaffold                                                        |
 | 2026-11-10 | Caching            | ใช้ `cacheComponents` ตามค่าเริ่มต้น                                                                        | เป็นแนวทางหลักของ Next 16 และใช้ revalidate ด้วย tag ตอนอนุมัติทรัพย์ได้ตรงกว่า ISR แบบตั้งเวลา |
 | 2026-11-10 | เปิดตัวแบบย่อ (M1) | เปิดหลัง P0 + P1 + ฟอร์มสนใจทรัพย์ + แจ้งเตือน LINE · ใส่ทรัพย์ผ่าน SQL function + script อัปรูปแทนหลังบ้าน | ได้ URL หน้าทรัพย์ไว้แชร์และให้ Google index เร็วขึ้นหลายสัปดาห์                                |
+| 2026-11-10 | ค่า enum ใน DB     | เก็บเป็นรหัสอังกฤษ (`land`, `available`, `new` …) แทนข้อความไทยแบบ mockup · ข้อความทรัพย์แยก `_th`/`_en`    | เว็บสองภาษา แปลป้ายผ่าน messages ได้ และ type ของ TS ได้ union ที่ใช้งานง่าย                    |
 | 2026-11-10 | Git                | งานโค้ดทำบน branch · merge/push เข้า main เมื่อเจ้าของสั่ง                                                  |                                                                                                 |
 
 ## บันทึกความคืบหน้า
 
 ใหม่สุดอยู่บน · 1 บรรทัดต่อรอบการทำงาน: วันที่ — ทำอะไร (รหัส task) — ค้างอะไร
 
+- 2026-11-10 — P1-01 เสร็จ: migration `init_schema` (11 ตาราง + enum + trigger `updated_at` + เปิด RLS ทุกตาราง) + types · ต่อไป P1-02
 - 2026-11-10 — P0-04 เสร็จ: Supabase local + client 4 แบบ + script `db:*` · **P0 ครบ** · ต่อไป P1-01
 - 2026-11-10 — P0-06 เสร็จ (CI) · ย้ายงานที่ต้องใช้บัญชีภายนอกไป M1-05 · P0-04 เปลี่ยนเป็น Supabase local
 - 2026-11-10 — P0-05 เสร็จ (ข้าม P0-04 ไว้รอ Supabase project): `.env.example`, ESLint rules, Prettier, Vitest, `pnpm check`
