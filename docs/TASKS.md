@@ -15,8 +15,8 @@
 > อัปเดตทุกครั้งที่จบรอบการทำงาน — คนหรือ Claude ที่มาทำต่อจะอ่านส่วนนี้ก่อน
 
 - **เฟสปัจจุบัน:** P0 — 🟨 กำลังทำ (branch `feat/p0-setup`)
-- **task ที่กำลังทำ:** P0-01 ✅ เสร็จ
-- **ขั้นต่อไป:** P0-02 design tokens + UI primitives
+- **task ที่กำลังทำ:** P0-01 ✅ · P0-02 ✅
+- **ขั้นต่อไป:** P0-03 next-intl
 - **ค้างอยู่ / รอคนตัดสินใจ:** D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
 - **หมายเหตุสำหรับรอบถัดไป:**
   - `cacheComponents: true` เปิดอยู่ → แคชด้วย `"use cache"` / `cacheTag` ไม่ใช่ `revalidate` แบบเดิม
@@ -24,6 +24,9 @@
   - `.gitignore` มี `.env*` ซึ่งกัน `.env.example` ด้วย → ต้องเพิ่ม `!.env.example` ใน P0-05
   - `pnpm-workspace.yaml` ตั้ง `ignoredBuiltDependencies: sharp` → ต้องอนุญาตให้ build `sharp` ใน M1-02
   - `AGENTS.md` ถูกเขียนซ้ำโดย `next dev` ให้ commit ไว้ อย่าลบ
+  - ลบหน้า/route แล้ว typecheck อาจพังเพราะ type เก่าใน `.next/dev/types` → ลบ `.next/dev` แล้วรันใหม่ (ควรใส่ไว้ใน script `typecheck` ตอน P0-05)
+  - Tailwind v4 ตัด CSS variable ที่ไม่มี class ใช้ทิ้ง จึงใช้ `@theme static` · ปุ่ม/ช่องกรอกสูง 44px (mockup ใช้ 38px) เพื่อให้แตะบนมือถือได้
+  - Chrome headless บังคับความกว้างขั้นต่ำประมาณ 500px ภาพ screenshot มือถือจึงดูล้นจอ ให้ใช้ device emulation ของ Playwright แทน
 
 ---
 
@@ -39,7 +42,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 | เฟส | สถานะ | task เสร็จ/ทั้งหมด |
 |---|---|---|
-| P0 ตั้งต้น | 🟨 กำลังทำ | 1/6 |
+| P0 ตั้งต้น | 🟨 กำลังทำ | 2/6 |
 | P1 ข้อมูล + หน้าสาธารณะ | ⬜ | 0/8 |
 | P3 บางส่วน (ก่อน M1) | ⬜ | 0/4 |
 | 🚀 M1 เปิดตัวแบบย่อ | ⬜ | 0/6 |
@@ -60,11 +63,11 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [x] ลบ boilerplate (หน้าแรก โลโก้ CSS ตัวอย่าง ฟอนต์ Geist ไฟล์ใน `public/`)
   - [x] ตรวจเวอร์ชัน Next.js / Tailwind ที่ได้ และจดไว้ใน "บันทึกการตัดสินใจ"
   - [x] `pnpm dev` เปิดหน้าเปล่าได้ + lint / typecheck / build ผ่าน
-- [ ] **P0-02** design tokens + UI primitives
-  - [ ] ยกตัวแปร `:root` จาก `mock-up.html` (`--bg --paper --ink --muted --line --brand --brand-2 --soft --danger --shadow --radius`) ไปไว้ใน `@theme` ของ `globals.css`
-  - [ ] ตั้งฟอนต์ Noto Sans Thai ด้วย `next/font` ใน root layout
-  - [ ] สร้าง `components/ui/Button`, `Field`, `Badge` ที่ใช้ token
-  - [ ] หน้าทดสอบ token ชั่วคราว ดูสีครบ แล้วลบทิ้ง
+- [x] **P0-02** design tokens + UI primitives
+  - [x] ยกตัวแปร `:root` จาก `mock-up.html` ไปไว้ใน `@theme static` ของ `globals.css` (เพิ่ม `brand-dark`, `note`, `note-ink` ที่ mockup ใช้แบบ hardcode)
+  - [x] ตั้งฟอนต์ Noto Sans Thai ด้วย `next/font` ใน root layout (subset thai + latin)
+  - [x] สร้าง `components/ui/Button`, `Field` (+ `Input` `Select` `Textarea`), `Badge` ที่ใช้ token + `lib/cn.ts`
+  - [x] หน้าทดสอบ token ชั่วคราว ดูสีครบ (screenshot desktop/มือถือ) แล้วลบทิ้ง
 - [ ] **P0-03** next-intl
   - [ ] `npm i next-intl` + `src/i18n/routing.ts` (`locales: ['th','en']`, `defaultLocale: 'th'`, prefix ทุก locale)
   - [ ] ตั้ง middleware/proxy ของ next-intl (ตามชื่อไฟล์ของเวอร์ชัน Next.js ที่ใช้)
@@ -291,6 +294,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 ## บันทึกความคืบหน้า
 ใหม่สุดอยู่บน · 1 บรรทัดต่อรอบการทำงาน: วันที่ — ทำอะไร (รหัส task) — ค้างอะไร
 
+- 2026-11-10 — P0-02 เสร็จ: design tokens (`@theme static`), ฟอนต์ Noto Sans Thai, `Button` / `Field` / `Badge` · เพิ่ม milestone 🚀 M1 เปิดตัวแบบย่อ · ต่อไป P0-03
 - 2026-11-10 — P0-01 เสร็จ: scaffold Next.js 16 ด้วย pnpm บน `feat/p0-setup` ลบ boilerplate · ต่อไป P0-02
 
 - 2026-11-10 — แตก subtask ทุก task + เพิ่มส่วน "📍 ทำถึงไหนแล้ว" · ยังไม่เริ่ม P0

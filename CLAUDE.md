@@ -31,7 +31,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ใช้ **pnpm** เท่านั้น
 
 ```bash
-pnpm dev                              # dev server (http://localhost:3000)
+pnpm dev                              # dev server (http://localhost:5173)
 pnpm build                            # production build
 pnpm lint                             # ESLint
 pnpm exec next typegen && pnpm exec tsc --noEmit   # typecheck (ต้อง typegen ก่อน เพราะ LayoutProps/PageProps เป็น type ที่ Next สร้าง)
