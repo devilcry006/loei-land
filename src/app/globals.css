@@ -1,11 +1,6 @@
 @import "tailwindcss";
 
-/*
- * Design tokens — ยกมาจาก :root ของ docs/mock-up.html
- * ใช้เป็น utility ได้เลย เช่น bg-paper text-ink border-line text-brand rounded-card shadow-card
- * ใช้ `static` เพื่อให้ CSS variable ทุกตัวมีใน :root เสมอ (เผื่อใช้ var() ตรง ๆ เช่นสไตล์แผนที่)
- * mockup มีแต่ธีมสว่าง ยังไม่ทำ dark mode
- */
+/* static: ไม่ให้ Tailwind ตัดตัวแปรที่ไม่มี class ใช้ทิ้ง เพื่อเรียก var() ตรง ๆ ได้ */
 @theme static {
   --color-bg: #f6f4ee;
   --color-paper: #fffdf8;
@@ -27,8 +22,8 @@
   --shadow-focus: 0 0 0 3px rgba(15, 107, 79, 0.12);
 
   --font-sans:
-    var(--font-noto-thai), ui-sans-serif, system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    var(--font-noto-thai), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 body {

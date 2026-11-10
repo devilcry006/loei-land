@@ -3,6 +3,7 @@
 > ไฟล์นี้คือแหล่งอ้างอิงหลักของ **สถานะงาน** · เหตุผลและการออกแบบอยู่ที่ [`PLAN.md`](./PLAN.md)
 >
 > โครงสร้าง: **เฟส** (P0–P5) → **task** (`P1-03`) → **subtask** (`- [ ]`)
+>
 > - ติ๊ก subtask `- [x]` ทันทีที่ทำเสร็จแต่ละข้อ
 > - subtask ครบแล้ว → ติ๊กหัวข้อ task (`- [x] **P1-03** …`) + แก้ตัวเลขในตารางสถานะเฟส
 > - จบรอบการทำงานแต่ละครั้ง → อัปเดตส่วน **"📍 ทำถึงไหนแล้ว"** และเพิ่มบรรทัดใน **"บันทึกความคืบหน้า"**
@@ -15,16 +16,14 @@
 > อัปเดตทุกครั้งที่จบรอบการทำงาน — คนหรือ Claude ที่มาทำต่อจะอ่านส่วนนี้ก่อน
 
 - **เฟสปัจจุบัน:** P0 — 🟨 กำลังทำ (branch `feat/p0-setup`)
-- **task ที่กำลังทำ:** P0-01 ✅ · P0-02 ✅ · P0-03 ✅
-- **ขั้นต่อไป:** P0-04 Supabase (ต้องให้เจ้าของสร้าง project และให้ key ก่อน)
+- **task ที่กำลังทำ:** P0-01 ✅ · P0-02 ✅ · P0-03 ✅ · P0-05 ✅ · P0-04 ข้ามไว้ก่อน รอ Supabase project
+- **ขั้นต่อไป:** P0-04 Supabase (ต้องให้เจ้าของสร้าง project + ติดตั้ง CLI + ใส่ key ใน `.env.local` ก่อน) หรือ P0-06 CI (ทำส่วน GitHub Actions ได้เลย ส่วน Vercel/Sentry ต้องมีบัญชี)
 - **ค้างอยู่ / รอคนตัดสินใจ:** D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
 - **หมายเหตุสำหรับรอบถัดไป:**
   - `cacheComponents: true` เปิดอยู่ → แคชด้วย `"use cache"` / `cacheTag` ไม่ใช่ `revalidate` แบบเดิม
-  - typecheck ต้องรัน `next typegen` ก่อน `tsc --noEmit` (ให้ใส่ใน script `typecheck` ตอน P0-05)
-  - `.gitignore` มี `.env*` ซึ่งกัน `.env.example` ด้วย → ต้องเพิ่ม `!.env.example` ใน P0-05
   - `pnpm-workspace.yaml` ตั้ง `ignoredBuiltDependencies: sharp` → ต้องอนุญาตให้ build `sharp` ใน M1-02
   - `AGENTS.md` ถูกเขียนซ้ำโดย `next dev` ให้ commit ไว้ อย่าลบ
-  - ลบหน้า/route แล้ว typecheck อาจพังเพราะ type เก่าใน `.next/dev/types` → ลบ `.next/dev` แล้วรันใหม่ (ควรใส่ไว้ใน script `typecheck` ตอน P0-05)
+  - ใช้ `pnpm typecheck` เสมอ (ลบ type เก่าใน `.next/dev/types` + typegen ให้แล้ว) อย่ารัน `tsc` ตรง ๆ · รัน `pnpm check` ก่อน commit
   - Tailwind v4 ตัด CSS variable ที่ไม่มี class ใช้ทิ้ง จึงใช้ `@theme static` · ปุ่ม/ช่องกรอกสูง 44px (mockup ใช้ 38px) เพื่อให้แตะบนมือถือได้
   - i18n: `<html>` อยู่ใน `app/[locale]/layout.tsx` · `app/layout.tsx` แค่คืน children · `app/not-found.tsx` มี `<html>` ของตัวเอง (404 ชั่วคราว ทำเต็มใน P1-08) · ทุกหน้าใต้ `[locale]` ต้องเรียก `setRequestLocale(locale)` ถึงจะ static ได้
   - Chrome headless บังคับความกว้างขั้นต่ำประมาณ 500px ภาพ screenshot มือถือจึงดูล้นจอ ให้ใช้ device emulation ของ Playwright แทน
@@ -41,22 +40,23 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 ช่วงก่อน P4 แอดมินใส่ทรัพย์ผ่าน Supabase dashboard + เครื่องมือใน M1 · P4 ต้องรอ P3 ครบ
 
-| เฟส | สถานะ | task เสร็จ/ทั้งหมด |
-|---|---|---|
-| P0 ตั้งต้น | 🟨 กำลังทำ | 3/6 |
-| P1 ข้อมูล + หน้าสาธารณะ | ⬜ | 0/8 |
-| P3 บางส่วน (ก่อน M1) | ⬜ | 0/4 |
-| 🚀 M1 เปิดตัวแบบย่อ | ⬜ | 0/6 |
-| P2 แผนที่ Longdo | ⬜ | 0/5 |
-| P3 ที่เหลือ (P3-04, 05) | ⬜ | 0/2 |
-| P4 หลังบ้านแอดมิน | ⬜ | 0/7 |
-| P5 SEO + เปิดตัวเต็ม | ⬜ | 0/8 |
+| เฟส                     | สถานะ      | task เสร็จ/ทั้งหมด |
+| ----------------------- | ---------- | ------------------ |
+| P0 ตั้งต้น              | 🟨 กำลังทำ | 4/6                |
+| P1 ข้อมูล + หน้าสาธารณะ | ⬜         | 0/8                |
+| P3 บางส่วน (ก่อน M1)    | ⬜         | 0/4                |
+| 🚀 M1 เปิดตัวแบบย่อ     | ⬜         | 0/6                |
+| P2 แผนที่ Longdo        | ⬜         | 0/5                |
+| P3 ที่เหลือ (P3-04, 05) | ⬜         | 0/2                |
+| P4 หลังบ้านแอดมิน       | ⬜         | 0/7                |
+| P5 SEO + เปิดตัวเต็ม    | ⬜         | 0/8                |
 
 สัญลักษณ์: ⬜ ยังไม่เริ่ม · 🟨 กำลังทำ · ✅ เสร็จ · ⛔ ติดบล็อก
 
 ---
 
 ## P0 — ตั้งต้น
+
 **เสร็จเมื่อ:** URL production เปิด `/th` และ `/en` ได้ · PR ผ่าน CI (typecheck + lint + test + build)
 
 - [x] **P0-01** scaffold Next.js
@@ -79,13 +79,14 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [ ] `npm i @supabase/supabase-js @supabase/ssr` + `npx supabase init` + `supabase link`
   - [ ] `src/lib/supabase/client.ts` (browser) และ `server.ts` (server component, cookies)
   - [ ] `src/lib/supabase/admin.ts` (secret key) บรรทัดแรกเป็น `import 'server-only'`
-- [ ] **P0-05** env + เครื่องมือคุณภาพโค้ด
-  - [ ] `.env.example` ครบตาม `PLAN.md` §7 · `.env.local` จริงไม่เข้า git
-  - [ ] `.gitignore` ครอบ `.env*.local`, `.next`, `node_modules`, `.vercel`
-  - [ ] ESLint `react/no-danger: error` + Prettier (+ plugin tailwind) + Vitest
-  - [ ] scripts: `lint`, `typecheck` (`tsc --noEmit`), `test`, `format` รันผ่านทั้งหมด
-  - [ ] README: ติดตั้ง → ตั้ง env → `npm run dev`
-  - [ ] อัปเดตส่วน Commands ใน `CLAUDE.md` ให้ตรงของจริง
+- [x] **P0-05** env + เครื่องมือคุณภาพโค้ด
+  - [x] `.env.example` ครบตาม `PLAN.md` §7 (+ `IP_HASH_SALT`, `ADMIN_NOTIFY_EMAIL`) · `.env.local` จริงรอสร้างตอน P0-04
+  - [x] `.gitignore` ครอบ `.env*` (ยกเว้น `.env.example`), `.next`, `node_modules`, `.vercel`
+  - [x] ESLint `react/no-danger: error` + ห้าม import `next/link` ใต้ `src/` · Prettier (+ plugin tailwind) · Vitest 5 (+ test `cn` และ test key ข้อความ th/en ตรงกัน)
+  - [x] scripts: `lint`, `typecheck`, `test`, `format`, `check` รันผ่านทั้งหมด
+  - [x] README: ติดตั้ง → ตั้ง env → `pnpm dev` + ตารางคำสั่ง
+  - [x] อัปเดตส่วน Commands ใน `CLAUDE.md` ให้ตรงของจริง
+
 - [ ] **P0-06** CI + deploy + monitoring
   - [ ] GitHub Actions: install → lint → typecheck → test → build บนทุก PR
   - [ ] เชื่อม Vercel + ตั้ง env ฝั่ง Vercel + preview deploy ต่อ PR
@@ -93,6 +94,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [ ] production URL เปิด `/th` `/en` ได้
 
 ## P1 — ข้อมูล + หน้าสาธารณะ
+
 **เสร็จเมื่อ:** หน้าแรกแสดงทรัพย์จาก DB กรองได้ครบ 6 ตัวกรองเหมือน mockup · `curl /th/property/<slug>` ได้ HTML ที่มีเนื้อหาครบ · contract test ยืนยันว่า query สาธารณะไม่คืนฟิลด์ลับ
 
 - [ ] **P1-01** migration schema
@@ -136,6 +138,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [ ] หน้า 404 / error สองภาษา
 
 ## 🚀 M1 — เปิดตัวแบบย่อ
+
 **ต้องเสร็จก่อน:** P0 ทั้งหมด · P1 ทั้งหมด · P3-01, P3-02, P3-03, P3-06
 **เสร็จเมื่อ:** เว็บอยู่บนโดเมนจริง · มีทรัพย์จริงขึ้นเว็บ · ส่งฟอร์มสนใจทรัพย์แล้วเข้า DB + แอดมินได้ LINE · view-source หน้าสาธารณะไม่มี PII / พิกัดจริง
 **ยังไม่มีในรอบนี้:** แผนที่ (P2), ฟอร์มฝากขาย / ต้องการซื้อ (P3-04, P3-05), หลังบ้าน (P4)
@@ -168,6 +171,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [ ] Sentry รับ error จาก production ได้
 
 ## P2 — แผนที่ Longdo (ขนานกับ P3)
+
 **เสร็จเมื่อ:** หมุดเปลี่ยนตามตัวกรอง · ไม่มี request ไป `tile.openstreetmap.org` · SDK ยังไม่โหลดจนกว่าจะเปิดแผนที่
 
 - [ ] **P2-01** โหลด SDK
@@ -189,8 +193,9 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [ ] เดสก์ท็อป: 2 คอลัมน์แบบ mockup (แผงซ้าย + แผนที่)
 
 ## P3 — ฟอร์มสาธารณะ
+
 > P3-01, P3-02, P3-03, P3-06 ทำก่อน M1 · P3-04, P3-05 ทำหลัง M1 (ขนานกับ P2)
-**เสร็จเมื่อ:** ส่งครบ 3 ฟอร์มแล้วข้อมูลเข้าตารางถูกต้อง · PII ของเจ้าของอยู่ใน `property_private` เท่านั้น · แอดมินได้รับ LINE · ยิงฟอร์มซ้ำถี่ ๆ ถูก rate limit
+> **เสร็จเมื่อ:** ส่งครบ 3 ฟอร์มแล้วข้อมูลเข้าตารางถูกต้อง · PII ของเจ้าของอยู่ใน `property_private` เท่านั้น · แอดมินได้รับ LINE · ยิงฟอร์มซ้ำถี่ ๆ ถูก rate limit
 
 - [ ] **P3-01** Zod schemas (`lib/schemas/`)
   - [ ] lead, submit-property, buyer-request (ข้อความ error สองภาษา)
@@ -217,6 +222,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [ ] แจ้งเตือนล้มต้องไม่ทำให้ฟอร์มล้ม (log ไป Sentry แทน)
 
 ## P4 — หลังบ้านแอดมิน
+
 **เสร็จเมื่อ:** submit ทรัพย์ทดสอบ → เห็นในคิว → อนุมัติ → ทรัพย์ขึ้นเว็บด้วยพิกัดที่ **ไม่ตรง** กับพิกัดจริง · เปิดดูเบอร์แล้วมีแถวใน `audit_log`
 
 - [ ] **P4-01** auth
@@ -246,6 +252,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [ ] การ export เขียน `audit_log`
 
 ## P5 — SEO + เปิดตัวเต็ม
+
 > ส่วนที่ทำไปแล้วใน M1-03 / M1-04 / M1-05 ให้ติ๊กตามได้เลย ไม่ต้องทำซ้ำ
 
 **เสร็จเมื่อ:** Rich Results Test ไม่มี error · Lighthouse mobile ≥ 90 · Playwright e2e ผ่าน · มีทรัพย์จริง ≥ 30 แปลง
@@ -281,20 +288,23 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 ---
 
 ## บันทึกการตัดสินใจ
+
 เรื่องที่ยังรอตัดสินใจอยู่ในตาราง D-1…D-6 ของ [`PLAN.md`](./PLAN.md#8-เรื่องที่ต้องตัดสินใจ--เสี่ยง) · ตัดสินใจแล้วให้บันทึกลงตารางนี้พร้อมเหตุผล
 
-| วันที่ | เรื่อง | ตัดสินใจ | เหตุผล |
-|---|---|---|---|
-| 2026-11-10 | Stack | Next.js + Supabase + Longdo Map | ตาม PLAN §2 |
-| 2026-11-10 | Package manager | pnpm | เร็วกว่า npm และมีในเครื่องอยู่แล้ว |
-| 2026-11-10 | เวอร์ชัน | Next.js 16.4.6 · React 19.3 · Tailwind 4.3 (ผ่าน `@tailwindcss/turbopack`) · TypeScript 5.9 | ได้จาก create-next-app ณ วันที่ scaffold |
-| 2026-11-10 | Caching | ใช้ `cacheComponents` ตามค่าเริ่มต้น | เป็นแนวทางหลักของ Next 16 และใช้ revalidate ด้วย tag ตอนอนุมัติทรัพย์ได้ตรงกว่า ISR แบบตั้งเวลา |
-| 2026-11-10 | เปิดตัวแบบย่อ (M1) | เปิดหลัง P0 + P1 + ฟอร์มสนใจทรัพย์ + แจ้งเตือน LINE · ใส่ทรัพย์ผ่าน SQL function + script อัปรูปแทนหลังบ้าน | ได้ URL หน้าทรัพย์ไว้แชร์และให้ Google index เร็วขึ้นหลายสัปดาห์ |
-| 2026-11-10 | Git | งานโค้ดทำบน branch · merge/push เข้า main เมื่อเจ้าของสั่ง | |
+| วันที่     | เรื่อง             | ตัดสินใจ                                                                                                    | เหตุผล                                                                                          |
+| ---------- | ------------------ | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| 2026-11-10 | Stack              | Next.js + Supabase + Longdo Map                                                                             | ตาม PLAN §2                                                                                     |
+| 2026-11-10 | Package manager    | pnpm                                                                                                        | เร็วกว่า npm และมีในเครื่องอยู่แล้ว                                                             |
+| 2026-11-10 | เวอร์ชัน           | Next.js 16.4.6 · React 19.3 · Tailwind 4.3 (ผ่าน `@tailwindcss/turbopack`) · TypeScript 5.9                 | ได้จาก create-next-app ณ วันที่ scaffold                                                        |
+| 2026-11-10 | Caching            | ใช้ `cacheComponents` ตามค่าเริ่มต้น                                                                        | เป็นแนวทางหลักของ Next 16 และใช้ revalidate ด้วย tag ตอนอนุมัติทรัพย์ได้ตรงกว่า ISR แบบตั้งเวลา |
+| 2026-11-10 | เปิดตัวแบบย่อ (M1) | เปิดหลัง P0 + P1 + ฟอร์มสนใจทรัพย์ + แจ้งเตือน LINE · ใส่ทรัพย์ผ่าน SQL function + script อัปรูปแทนหลังบ้าน | ได้ URL หน้าทรัพย์ไว้แชร์และให้ Google index เร็วขึ้นหลายสัปดาห์                                |
+| 2026-11-10 | Git                | งานโค้ดทำบน branch · merge/push เข้า main เมื่อเจ้าของสั่ง                                                  |                                                                                                 |
 
 ## บันทึกความคืบหน้า
+
 ใหม่สุดอยู่บน · 1 บรรทัดต่อรอบการทำงาน: วันที่ — ทำอะไร (รหัส task) — ค้างอะไร
 
+- 2026-11-10 — P0-05 เสร็จ (ข้าม P0-04 ไว้รอ Supabase project): `.env.example`, ESLint rules, Prettier, Vitest, `pnpm check`
 - 2026-11-10 — P0-03 เสร็จ: next-intl 4.14 + `proxy.ts` · `/th` `/en` static · ต่อไป P0-04 (รอ Supabase project)
 - 2026-11-10 — P0-02 เสร็จ: design tokens (`@theme static`), ฟอนต์ Noto Sans Thai, `Button` / `Field` / `Badge` · เพิ่ม milestone 🚀 M1 เปิดตัวแบบย่อ · ต่อไป P0-03
 - 2026-11-10 — P0-01 เสร็จ: scaffold Next.js 16 ด้วย pnpm บน `feat/p0-setup` ลบ boilerplate · ต่อไป P0-02

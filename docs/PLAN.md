@@ -19,20 +19,20 @@
 
 ## 2. Stack
 
-| ชั้น | เลือก | เหตุผล |
-|---|---|---|
-| Framework | **Next.js (App Router, รุ่นเสถียรล่าสุด) + TypeScript** | SSR/ISR ทำให้ Google เห็นเนื้อหา · ใช้ Server Actions แทน backend แยก |
-| Styling | **Tailwind CSS v4** (config ใน CSS ด้วย `@theme`) | ยก design token จาก `:root` ของ mockup มาได้ตรง ๆ |
-| i18n | **next-intl** ใส่ locale ใน URL (`/th`, `/en`) | Google index ได้ทั้งสองภาษา |
-| DB / Auth / Storage | **Supabase** (Postgres + RLS, Auth, Storage) region สิงคโปร์ | ใช้ RLS ล็อกข้อมูลลับระดับแถว และมี auth กับที่เก็บรูปในตัว |
-| แผนที่ | **Longdo Map API v3** | ข้อมูลแผนที่ไทยครบ · มี free tier · แทนการดึง tile OSM ตรง ๆ ของ mockup |
-| ฟอร์ม | **React Hook Form + Zod** (ใช้ schema ชุดเดียวทั้ง client และ server) | |
-| กันบอท / spam | **Cloudflare Turnstile** + rate limit (Upstash Redis) | ใช้กับฟอร์มสาธารณะ 3 ฟอร์ม |
-| แจ้งเตือนแอดมิน | **LINE Messaging API** (push) + **Resend** (อีเมลสำรอง) | แอดมินต้องรู้ทันทีเมื่อมี lead |
-| รูป | Supabase Storage + `sharp` (re-encode + ลบ EXIF) | |
-| Monitoring | Sentry (free) + Vercel Analytics | |
-| Test | Vitest (unit) + Playwright (e2e / privacy contract) | |
-| Deploy | **Vercel Pro** | แผน Hobby ห้ามใช้เชิงพาณิชย์ |
+| ชั้น                | เลือก                                                                 | เหตุผล                                                                  |
+| ------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Framework           | **Next.js (App Router, รุ่นเสถียรล่าสุด) + TypeScript**               | SSR/ISR ทำให้ Google เห็นเนื้อหา · ใช้ Server Actions แทน backend แยก   |
+| Styling             | **Tailwind CSS v4** (config ใน CSS ด้วย `@theme`)                     | ยก design token จาก `:root` ของ mockup มาได้ตรง ๆ                       |
+| i18n                | **next-intl** ใส่ locale ใน URL (`/th`, `/en`)                        | Google index ได้ทั้งสองภาษา                                             |
+| DB / Auth / Storage | **Supabase** (Postgres + RLS, Auth, Storage) region สิงคโปร์          | ใช้ RLS ล็อกข้อมูลลับระดับแถว และมี auth กับที่เก็บรูปในตัว             |
+| แผนที่              | **Longdo Map API v3**                                                 | ข้อมูลแผนที่ไทยครบ · มี free tier · แทนการดึง tile OSM ตรง ๆ ของ mockup |
+| ฟอร์ม               | **React Hook Form + Zod** (ใช้ schema ชุดเดียวทั้ง client และ server) |                                                                         |
+| กันบอท / spam       | **Cloudflare Turnstile** + rate limit (Upstash Redis)                 | ใช้กับฟอร์มสาธารณะ 3 ฟอร์ม                                              |
+| แจ้งเตือนแอดมิน     | **LINE Messaging API** (push) + **Resend** (อีเมลสำรอง)               | แอดมินต้องรู้ทันทีเมื่อมี lead                                          |
+| รูป                 | Supabase Storage + `sharp` (re-encode + ลบ EXIF)                      |                                                                         |
+| Monitoring          | Sentry (free) + Vercel Analytics                                      |                                                                         |
+| Test                | Vitest (unit) + Playwright (e2e / privacy contract)                   |                                                                         |
+| Deploy              | **Vercel Pro**                                                        | แผน Hobby ห้ามใช้เชิงพาณิชย์                                            |
 
 ต้นทุนช่วงแรกประมาณ **~750 ฿/เดือน** (Vercel Pro + โดเมน ส่วนที่เหลือใช้ free tier) · ค่าใช้จ่ายที่น่าจะเพิ่มก่อนคือ Supabase Pro ($25) เมื่อรูปเยอะขึ้น
 
@@ -150,14 +150,14 @@ NEXT_PUBLIC_LINE_URL=
 
 ## 8. เรื่องที่ต้องตัดสินใจ / เสี่ยง
 
-| # | เรื่อง | บล็อกอะไร |
-|---|---|---|
+| #   | เรื่อง                                                      | บล็อกอะไร                              |
+| --- | ----------------------------------------------------------- | -------------------------------------- |
 | D-1 | Longdo free tier ใช้เชิงพาณิชย์ได้ไหม (ต้องอีเมลถาม Longdo) | เปิดตัวจริง (ระหว่างพัฒนาใช้ไปก่อนได้) |
-| D-2 | บัญชี Vercel Pro + โดเมน | deploy production |
-| D-3 | เพจ Facebook / LINE OA จริง | แจ้งเตือน + ปุ่มติดต่อ |
-| D-4 | ชุดข้อมูลอำเภอ/ตำบลจังหวัดเลย (14 อำเภอ) | seed |
-| D-5 | ทรัพย์จริงตอนเปิดตัว ≥ 30 แปลง + ใครถ่ายรูป | เปิดตัว |
-| D-6 | ข้อความ consent / privacy ให้ผู้รู้กฎหมายตรวจ | เปิดตัว |
+| D-2 | บัญชี Vercel Pro + โดเมน                                    | deploy production                      |
+| D-3 | เพจ Facebook / LINE OA จริง                                 | แจ้งเตือน + ปุ่มติดต่อ                 |
+| D-4 | ชุดข้อมูลอำเภอ/ตำบลจังหวัดเลย (14 อำเภอ)                    | seed                                   |
+| D-5 | ทรัพย์จริงตอนเปิดตัว ≥ 30 แปลง + ใครถ่ายรูป                 | เปิดตัว                                |
+| D-6 | ข้อความ consent / privacy ให้ผู้รู้กฎหมายตรวจ               | เปิดตัว                                |
 
 ---
 

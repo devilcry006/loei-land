@@ -26,7 +26,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
 
-  // ให้หน้าที่อยู่ใต้ layout นี้ render แบบ static ได้ (ไม่ต้องอ่าน header หา locale)
+  // ไม่เรียก = หน้าจะกลายเป็น dynamic เพราะ next-intl ต้องอ่าน header หา locale
   setRequestLocale(locale);
 
   return (

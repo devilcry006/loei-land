@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-// อ่าน config ภาษาจาก src/i18n/request.ts
 const withNextIntl = createNextIntlPlugin();
 
 export default withNextIntl(nextConfig);

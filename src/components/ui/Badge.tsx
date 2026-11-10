@@ -1,13 +1,6 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/cn";
 
-/**
- * ป้ายเล็กตาม mockup
- * - dark:   .badge (รหัสทรัพย์ ป้ายบนรูป)
- * - status: .status (สถานะ เช่น พร้อมขาย)
- * - soft:   ป้ายเขียวอ่อน (แท็ก)
- * - note:   .inline-note แบบสั้น (คำเตือน)
- */
 export type BadgeVariant = "dark" | "status" | "soft" | "note";
 
 const variants: Record<BadgeVariant, string> = {

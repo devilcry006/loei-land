@@ -31,13 +31,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ใช้ **pnpm** เท่านั้น
 
 ```bash
-pnpm dev                              # dev server (http://localhost:5173)
-pnpm build                            # production build
-pnpm lint                             # ESLint
-pnpm exec next typegen && pnpm exec tsc --noEmit   # typecheck (ต้อง typegen ก่อน เพราะ LayoutProps/PageProps เป็น type ที่ Next สร้าง)
+pnpm dev                    # dev server (http://localhost:5173)
+pnpm build                  # production build
+pnpm lint                   # ESLint
+pnpm typecheck              # ลบ type เก่าใน .next/dev → next typegen → tsc --noEmit
+pnpm test                   # Vitest ครั้งเดียว (test:watch = โหมด watch)
+pnpm exec vitest run src/lib/cn.test.ts   # รันไฟล์เดียว · เพิ่ม -t "ชื่อ test" เพื่อรัน test เดียว
+pnpm format                 # Prettier เขียนทับ (format:check = ตรวจอย่างเดียว)
+pnpm check                  # lint + typecheck + test + format:check — รันก่อน commit ทุกครั้ง
 ```
 
-`test` (Vitest), `format` และ script `typecheck` จะเพิ่มใน P0-05 · Playwright เพิ่มใน P5-06 · เพิ่ม script ใหม่เมื่อไรให้แก้ส่วนนี้ด้วย
+- **comment:** เขียนเฉพาะเหตุผลที่อ่านจากโค้ดไม่ออก (ทำไม, ข้อจำกัด, กับดัก) ห้ามเขียนอธิบายสิ่งที่ชื่อตัวแปร/ฟังก์ชันบอกอยู่แล้ว ไม่ใส่รหัส task หรือ JSDoc อธิบายสิ่งที่เห็นชัด
+- test อยู่ข้างไฟล์ที่ทดสอบ ชื่อ `*.test.ts(x)` ใต้ `src/` · alias `@/*` ใช้ใน test ได้
+- กฎ ESLint ของรีโปนี้: `react/no-danger` (ห้าม `dangerouslySetInnerHTML`) และห้าม import `next/link` ใต้ `src/` (ใช้ของ `@/i18n/navigation`) ยกเว้น `app/not-found.tsx` กับ `app/admin/**`
+- `src/i18n/messages.test.ts` ตรวจว่า `th.json` กับ `en.json` มี key ตรงกัน
+- Playwright จะเพิ่มใน P5-06 · เพิ่ม script ใหม่เมื่อไรให้แก้ส่วนนี้ด้วย
 
 ## Next.js 16 ในรีโปนี้
 
@@ -50,6 +58,7 @@ pnpm exec next typegen && pnpm exec tsc --noEmit   # typecheck (ต้อง typ
 ## สิ่งที่ mockup กำหนดไว้ (ต้องรักษาไว้ในตัวจริง)
 
 **ฟีเจอร์ / flow** (ใน mockup แต่ละอย่างเป็น drawer บนหน้าเดียว):
+
 - หน้าค้นหา: แผงซ้ายมีตัวกรอง (คำค้น, ประเภท, อำเภอ → ตำบล, ราคาสูงสุด, ขนาดขั้นต่ำ) + การ์ดทรัพย์ แผงขวาเป็นแผนที่ hover หมุดแล้วเห็น preview
 - รายละเอียดทรัพย์: ข้อมูล, จุดเด่น, สถานที่สำคัญใกล้เคียง (คำนวณระยะ haversine จากรายการ landmark) และฟอร์ม lead "สนใจทรัพย์นี้"
 - ฝากขายทรัพย์ (เจ้าของส่งเข้ามา) → เข้า **คิวรอแอดมินตรวจ** ก่อนเผยแพร่
@@ -58,6 +67,7 @@ pnpm exec next typegen && pnpm exec tsc --noEmit   # typecheck (ต้อง typ
 - หน้า Privacy/Terms ฉบับย่อ และปุ่มติดต่อ LINE / Facebook
 
 **Data model** — ดู array `starterProperties` (`docs/mock-up.html:1392`) ฟิลด์หลัก: `id` (`LL-0001`), `title/titleEn`, `type/typeEn`, `district`, `subdistrict`, `zone`, `lat/lon` (พิกัดโซน), `price`, `rai/ngan/wah`, `frontage`, `road`, `utilities`, `deed`, `encumbrance`, `status`, `highlights[]`, `tags[]`
+
 - ใช้หน่วยไทย 1 ไร่ = 4 งาน = 400 ตร.ว. และแสดงทั้งราคา/ไร่ และราคา/ตร.ว.
 - copy สองภาษาอยู่ใน object `i18n` (`docs/mock-up.html:1556`) และ element ใช้ `data-i18n`
 - design token อยู่ใน `:root` ของ mockup (`--bg --paper --ink --muted --line --brand --brand-2 --soft --danger --shadow --radius`)
@@ -72,6 +82,7 @@ pnpm exec next typegen && pnpm exec tsc --noEmit   # typecheck (ต้อง typ
 ## จุดที่เป็นแค่ของชั่วคราวใน mockup (ห้ามยกไปใช้ในตัวจริง)
 
 mockup เขียนกำกับไว้เองว่าเป็น MVP และ "ควรต่อ Google Sheets หรือ backend ก่อนใช้งานจริง"
+
 - ใช้ `localStorage` เป็นที่เก็บข้อมูล (`loeilandPendingProperties`, `loeilandApprovedProperties`, `loeilandLeads`, `loeilandBuyerRequests`) และใช้ `APP_CONFIG.googleScriptUrl` ซึ่งยังว่างอยู่
 - รหัสแอดมิน `adminPin: "2468"` hardcode ไว้ฝั่ง client
 - ตอน `approveSubmission` คัด object ที่ส่งมาทั้งก้อนไปเป็นประกาศสาธารณะ ซึ่งรวมชื่อ/เบอร์เจ้าของ และ lat/lon ที่ผู้ส่งกรอกเองด้วย ตัวจริงต้องแยกข้อมูลสาธารณะกับข้อมูลลับออกจากกัน

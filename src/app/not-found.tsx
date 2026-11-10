@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-// 404 สำหรับ URL ที่ไม่ผ่าน [locale] (หน้า 404 สองภาษาแบบเต็มทำใน P1-08)
 export default function GlobalNotFound() {
   return (
     <html lang="th">

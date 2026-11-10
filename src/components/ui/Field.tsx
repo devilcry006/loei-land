@@ -1,7 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-/** สไตล์ช่องกรอกตาม mockup (select, input, textarea) */
 export const controlClass = cn(
   "w-full rounded-card border border-line bg-white px-3 py-2.5 text-ink outline-none",
   "placeholder:text-muted/70 focus:border-brand focus:shadow-focus",
@@ -17,7 +16,6 @@ type FieldProps = {
   children: ReactNode;
 };
 
-/** label + ช่องกรอก + ข้อความช่วย/ข้อผิดพลาด (ใน mockup คือ .field) */
 export function Field({ label, htmlFor, hint, error, className, children }: FieldProps) {
   return (
     <div className={cn("grid gap-1.5", className)}>
