@@ -16,9 +16,9 @@
 > อัปเดตทุกครั้งที่จบรอบการทำงาน — คนหรือ Claude ที่มาทำต่อจะอ่านส่วนนี้ก่อน
 
 - **เฟสปัจจุบัน:** P0 — 🟨 กำลังทำ (branch `feat/p0-setup`)
-- **task ที่กำลังทำ:** P0-01 ✅ · P0-02 ✅ · P0-03 ✅ · P0-05 ✅ · P0-04 ข้ามไว้ก่อน รอ Supabase project
-- **ขั้นต่อไป:** P0-04 Supabase (ต้องให้เจ้าของสร้าง project + ติดตั้ง CLI + ใส่ key ใน `.env.local` ก่อน) หรือ P0-06 CI (ทำส่วน GitHub Actions ได้เลย ส่วน Vercel/Sentry ต้องมีบัญชี)
-- **ค้างอยู่ / รอคนตัดสินใจ:** D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
+- **task ที่กำลังทำ:** P0-01, 02, 03, 05, 06 ✅ · P0-04 🟨 Supabase local
+- **ขั้นต่อไป:** ปิด P0-04 → เริ่ม P1-01 migration
+- **ค้างอยู่ / รอคนตัดสินใจ:** บัญชี Supabase cloud / Vercel / Sentry + push CI ย้ายไป M1-05 แล้ว · D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
 - **หมายเหตุสำหรับรอบถัดไป:**
   - `cacheComponents: true` เปิดอยู่ → แคชด้วย `"use cache"` / `cacheTag` ไม่ใช่ `revalidate` แบบเดิม
   - `pnpm-workspace.yaml` ตั้ง `ignoredBuiltDependencies: sharp` → ต้องอนุญาตให้ build `sharp` ใน M1-02
@@ -42,7 +42,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 | เฟส                     | สถานะ      | task เสร็จ/ทั้งหมด |
 | ----------------------- | ---------- | ------------------ |
-| P0 ตั้งต้น              | 🟨 กำลังทำ | 4/6                |
+| P0 ตั้งต้น              | 🟨 กำลังทำ | 5/6                |
 | P1 ข้อมูล + หน้าสาธารณะ | ⬜         | 0/8                |
 | P3 บางส่วน (ก่อน M1)    | ⬜         | 0/4                |
 | 🚀 M1 เปิดตัวแบบย่อ     | ⬜         | 0/6                |
@@ -74,11 +74,12 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [x] `src/proxy.ts` ใช้ middleware ของ next-intl (ข้าม `api`, `admin`, `_next`, ไฟล์ที่มีนามสกุล)
   - [x] `src/app/[locale]/layout.tsx` (มี `<html lang>`, ฟอนต์, metadata ตามภาษา, `setRequestLocale`) + `messages/th.json`, `messages/en.json` + type ของ key ข้อความใน `src/global.d.ts`
   - [x] `/` redirect ไป `/th` (หรือ `/en` ถ้าเบราว์เซอร์ตั้งภาษาอังกฤษ) · `/th` และ `/en` เป็นหน้า static · URL ผิดได้ 404
-- [ ] **P0-04** Supabase
-  - [ ] สร้าง project region สิงคโปร์ เก็บ URL + publishable key + secret key
-  - [ ] `npm i @supabase/supabase-js @supabase/ssr` + `npx supabase init` + `supabase link`
-  - [ ] `src/lib/supabase/client.ts` (browser) และ `server.ts` (server component, cookies)
+- [ ] **P0-04** Supabase (local บน Docker — project บน cloud ย้ายไป M1-05)
+  - [ ] `pnpm add -D supabase` + `supabase init` + `supabase start` รันได้ในเครื่อง
+  - [ ] `.env.local` ใส่ URL + publishable key + secret key ของ Supabase local
+  - [ ] `pnpm add @supabase/supabase-js @supabase/ssr` + `src/lib/supabase/client.ts` (browser) และ `server.ts` (server component, cookies)
   - [ ] `src/lib/supabase/admin.ts` (secret key) บรรทัดแรกเป็น `import 'server-only'`
+  - [ ] ทดสอบเชื่อมต่อ DB local ได้จริง + เพิ่มคำสั่ง Supabase ใน `CLAUDE.md` / README
 - [x] **P0-05** env + เครื่องมือคุณภาพโค้ด
   - [x] `.env.example` ครบตาม `PLAN.md` §7 (+ `IP_HASH_SALT`, `ADMIN_NOTIFY_EMAIL`) · `.env.local` จริงรอสร้างตอน P0-04
   - [x] `.gitignore` ครอบ `.env*` (ยกเว้น `.env.example`), `.next`, `node_modules`, `.vercel`
@@ -87,11 +88,8 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [x] README: ติดตั้ง → ตั้ง env → `pnpm dev` + ตารางคำสั่ง
   - [x] อัปเดตส่วน Commands ใน `CLAUDE.md` ให้ตรงของจริง
 
-- [ ] **P0-06** CI + deploy + monitoring
-  - [ ] GitHub Actions: install → lint → typecheck → test → build บนทุก PR
-  - [ ] เชื่อม Vercel + ตั้ง env ฝั่ง Vercel + preview deploy ต่อ PR
-  - [ ] Sentry (`@sentry/nextjs`) ทดลองโยน error แล้วเห็นใน dashboard
-  - [ ] production URL เปิด `/th` `/en` ได้
+- [x] **P0-06** CI (ส่วน deploy / monitoring / branch protection ย้ายไป M1-05)
+  - [x] GitHub Actions (`.github/workflows/ci.yml`): install → lint → typecheck → test → format:check → build บนทุก PR และ push เข้า main · Node จาก `.nvmrc` (24) · จำลองใน clone ใหม่ผ่านแล้ว
 
 ## P1 — ข้อมูล + หน้าสาธารณะ
 
@@ -159,8 +157,12 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [ ] OG image หน้าทรัพย์ (ทดสอบด้วย Facebook Sharing Debugger)
   - [ ] `sitemap.ts` + `robots.ts`
 - [ ] **M1-04** `/privacy` + `/terms` ฉบับแรก (ขยายจาก drawer ใน mockup · ให้ผู้รู้ตรวจตาม D-6)
-- [ ] **M1-05** เตรียมของจริง
-  - [ ] Vercel Pro + ชี้โดเมน + HTTPS (D-2)
+- [ ] **M1-05** เตรียมของจริง (รวมส่วนที่ข้ามจาก P0-04 / P0-06)
+  - [ ] push branch แล้วดูว่า CI บน GitHub เขียวจริง + ตั้ง branch protection ของ `main` ให้ต้องผ่าน CI
+  - [ ] Supabase project บน cloud (region สิงคโปร์) → `supabase link` → `supabase db push` → ใส่ key ใน env ของ Vercel
+  - [ ] Vercel Pro + เชื่อมรีโป + preview deploy ต่อ PR + ตั้ง env (D-2)
+  - [ ] Sentry (`@sentry/nextjs`) ทดลองโยน error แล้วเห็นใน dashboard
+  - [ ] ชี้โดเมน + HTTPS · production URL เปิด `/th` `/en` ได้
   - [ ] LINE OA / เพจ Facebook จริง + ใส่ลิงก์ใน env (D-3)
   - [ ] ใส่ทรัพย์จริงอย่างน้อย 10 แปลงพร้อมรูป (ตัวเลขนี้ปรับได้)
   - [ ] ส่ง sitemap เข้า Google Search Console
@@ -304,6 +306,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 ใหม่สุดอยู่บน · 1 บรรทัดต่อรอบการทำงาน: วันที่ — ทำอะไร (รหัส task) — ค้างอะไร
 
+- 2026-11-10 — P0-06 เสร็จ (CI) · ย้ายงานที่ต้องใช้บัญชีภายนอกไป M1-05 · P0-04 เปลี่ยนเป็น Supabase local
 - 2026-11-10 — P0-05 เสร็จ (ข้าม P0-04 ไว้รอ Supabase project): `.env.example`, ESLint rules, Prettier, Vitest, `pnpm check`
 - 2026-11-10 — P0-03 เสร็จ: next-intl 4.14 + `proxy.ts` · `/th` `/en` static · ต่อไป P0-04 (รอ Supabase project)
 - 2026-11-10 — P0-02 เสร็จ: design tokens (`@theme static`), ฟอนต์ Noto Sans Thai, `Button` / `Field` / `Badge` · เพิ่ม milestone 🚀 M1 เปิดตัวแบบย่อ · ต่อไป P0-03
