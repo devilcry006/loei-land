@@ -14,11 +14,16 @@
 
 > อัปเดตทุกครั้งที่จบรอบการทำงาน — คนหรือ Claude ที่มาทำต่อจะอ่านส่วนนี้ก่อน
 
-- **เฟสปัจจุบัน:** P0 — ยังไม่เริ่ม
-- **task ที่กำลังทำ:** —
-- **ขั้นต่อไป:** P0-01 scaffold Next.js
-- **ค้างอยู่ / รอคนตัดสินใจ:** D-1…D-6 ใน `PLAN.md` §8 (ไม่บล็อก P0–P1)
-- **หมายเหตุสำหรับรอบถัดไป:** —
+- **เฟสปัจจุบัน:** P0 — 🟨 กำลังทำ (branch `feat/p0-setup`)
+- **task ที่กำลังทำ:** P0-01 ✅ เสร็จ
+- **ขั้นต่อไป:** P0-02 design tokens + UI primitives
+- **ค้างอยู่ / รอคนตัดสินใจ:** D-1…D-6 ใน `PLAN.md` §8 (ไม่บล็อก P0–P1) · ยืนยันว่าจะเปิดตัวแบบย่อหรือไม่ (ถ้าเอา ต้องจัดลำดับ task ใหม่)
+- **หมายเหตุสำหรับรอบถัดไป:**
+  - `cacheComponents: true` เปิดอยู่ → แคชด้วย `"use cache"` / `cacheTag` ไม่ใช่ `revalidate` แบบเดิม
+  - typecheck ต้องรัน `next typegen` ก่อน `tsc --noEmit` (ให้ใส่ใน script `typecheck` ตอน P0-05)
+  - `.gitignore` มี `.env*` ซึ่งกัน `.env.example` ด้วย → ต้องเพิ่ม `!.env.example` ใน P0-05
+  - `pnpm-workspace.yaml` ตั้ง `ignoredBuiltDependencies: sharp` → ก่อน P3-04 ต้องอนุญาตให้ build `sharp`
+  - `AGENTS.md` ถูกเขียนซ้ำโดย `next dev` ให้ commit ไว้ อย่าลบ
 
 ---
 
@@ -28,7 +33,7 @@
 
 | เฟส | สถานะ | task เสร็จ/ทั้งหมด |
 |---|---|---|
-| P0 ตั้งต้น | ⬜ ยังไม่เริ่ม | 0/6 |
+| P0 ตั้งต้น | 🟨 กำลังทำ | 1/6 |
 | P1 ข้อมูล + หน้าสาธารณะ | ⬜ | 0/8 |
 | P2 แผนที่ Longdo | ⬜ | 0/5 |
 | P3 ฟอร์มสาธารณะ | ⬜ | 0/6 |
@@ -42,11 +47,11 @@
 ## P0 — ตั้งต้น
 **เสร็จเมื่อ:** URL production เปิด `/th` และ `/en` ได้ · PR ผ่าน CI (typecheck + lint + test + build)
 
-- [ ] **P0-01** scaffold Next.js
-  - [ ] `npx create-next-app@latest` เลือก TS, ESLint, Tailwind, App Router, `src/`, alias `@/*`
-  - [ ] ลบ boilerplate (หน้าแรก โลโก้ CSS ตัวอย่าง)
-  - [ ] ตรวจเวอร์ชัน Next.js / Tailwind ที่ได้ และจดไว้ใน "บันทึกการตัดสินใจ"
-  - [ ] `npm run dev` เปิดหน้าเปล่าได้
+- [x] **P0-01** scaffold Next.js
+  - [x] `pnpm dlx create-next-app@latest` เลือก TS, ESLint, Tailwind, App Router, `src/`, alias `@/*`
+  - [x] ลบ boilerplate (หน้าแรก โลโก้ CSS ตัวอย่าง ฟอนต์ Geist ไฟล์ใน `public/`)
+  - [x] ตรวจเวอร์ชัน Next.js / Tailwind ที่ได้ และจดไว้ใน "บันทึกการตัดสินใจ"
+  - [x] `pnpm dev` เปิดหน้าเปล่าได้ + lint / typecheck / build ผ่าน
 - [ ] **P0-02** design tokens + UI primitives
   - [ ] ยกตัวแปร `:root` จาก `mock-up.html` (`--bg --paper --ink --muted --line --brand --brand-2 --soft --danger --shadow --radius`) ไปไว้ใน `@theme` ของ `globals.css`
   - [ ] ตั้งฟอนต์ Noto Sans Thai ด้วย `next/font` ใน root layout
@@ -235,9 +240,15 @@
 | วันที่ | เรื่อง | ตัดสินใจ | เหตุผล |
 |---|---|---|---|
 | 2026-11-10 | Stack | Next.js + Supabase + Longdo Map | ตาม PLAN §2 |
+| 2026-11-10 | Package manager | pnpm | เร็วกว่า npm และมีในเครื่องอยู่แล้ว |
+| 2026-11-10 | เวอร์ชัน | Next.js 16.4.6 · React 19.3 · Tailwind 4.3 (ผ่าน `@tailwindcss/turbopack`) · TypeScript 5.9 | ได้จาก create-next-app ณ วันที่ scaffold |
+| 2026-11-10 | Caching | ใช้ `cacheComponents` ตามค่าเริ่มต้น | เป็นแนวทางหลักของ Next 16 และใช้ revalidate ด้วย tag ตอนอนุมัติทรัพย์ได้ตรงกว่า ISR แบบตั้งเวลา |
+| 2026-11-10 | Git | งานโค้ดทำบน branch · merge/push เข้า main เมื่อเจ้าของสั่ง | |
 
 ## บันทึกความคืบหน้า
 ใหม่สุดอยู่บน · 1 บรรทัดต่อรอบการทำงาน: วันที่ — ทำอะไร (รหัส task) — ค้างอะไร
+
+- 2026-11-10 — P0-01 เสร็จ: scaffold Next.js 16 ด้วย pnpm บน `feat/p0-setup` ลบ boilerplate · ต่อไป P0-02
 
 - 2026-11-10 — แตก subtask ทุก task + เพิ่มส่วน "📍 ทำถึงไหนแล้ว" · ยังไม่เริ่ม P0
 - 2026-11-10 — เขียนแผนใหม่ (PLAN.md + TASKS.md)

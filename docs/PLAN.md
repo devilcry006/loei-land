@@ -34,7 +34,7 @@
 
 ต้นทุนช่วงแรกประมาณ **~750 ฿/เดือน** (Vercel Pro + โดเมน ส่วนที่เหลือใช้ free tier) · ค่าใช้จ่ายที่น่าจะเพิ่มก่อนคือ Supabase Pro ($25) เมื่อรูปเยอะขึ้น
 
-> หมายเหตุเวอร์ชัน: Next.js 16 เปลี่ยนชื่อ `middleware.ts` เป็น `proxy.ts` · Supabase โปรเจกต์ใหม่ใช้ key แบบ publishable/secret (`sb_publishable_…` / `sb_secret_…`) แทน anon/service_role ให้ตรวจ docs ของเวอร์ชันที่ติดตั้งจริงทุกครั้ง
+> หมายเหตุเวอร์ชัน: ติดตั้งจริง (P0-01) ได้ **Next.js 16.4.6, React 19.3, Tailwind 4.3** · `cacheComponents` เปิดอยู่ คำว่า "ISR" ในเอกสารนี้หมายถึงหน้าที่แคชด้วย `"use cache"` + `cacheTag` และสั่ง revalidate ด้วย tag ตอนแอดมินอนุมัติ/แก้ไข · Next.js 16 เปลี่ยนชื่อ `middleware.ts` เป็น `proxy.ts` · Supabase โปรเจกต์ใหม่ใช้ key แบบ publishable/secret (`sb_publishable_…` / `sb_secret_…`) แทน anon/service_role ให้ตรวจ docs ของเวอร์ชันที่ติดตั้งจริงทุกครั้ง
 
 ---
 

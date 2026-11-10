@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `docs/PLAN.md` — stack, กติกาความเป็นส่วนตัว, DB schema + RLS, routes, flow ของฟอร์ม/การอนุมัติ, env, เรื่องที่ยังต้องตัดสินใจ
 - `docs/TASKS.md` — checklist รายเฟส (P0–P5) และ **แหล่งอ้างอิงหลักของสถานะงาน**
 
-**Stack:** Next.js (App Router) + TypeScript + Tailwind v4 · next-intl (locale ใน URL) · Supabase (Postgres + RLS, Auth, Storage) · Longdo Map API v3 · RHF + Zod · Turnstile + Upstash rate limit · LINE Messaging API / Resend · Vitest + Playwright · Vercel Pro — ตรวจ docs ของเวอร์ชันที่ติดตั้งจริงก่อนเขียนโค้ดทุกครั้ง (เช่น Next.js 16 เปลี่ยน `middleware.ts` เป็น `proxy.ts` และ Supabase เปลี่ยนเป็น key แบบ publishable/secret)
+**Stack:** Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4 · next-intl (locale ใน URL) · Supabase (Postgres + RLS, Auth, Storage) · Longdo Map API v3 · RHF + Zod · Turnstile + Upstash rate limit · LINE Messaging API / Resend · Vitest + Playwright · Vercel Pro — ตรวจ docs ของเวอร์ชันที่ติดตั้งจริงก่อนเขียนโค้ดทุกครั้ง (เช่น Next.js 16 เปลี่ยน `middleware.ts` เป็น `proxy.ts` และ Supabase เปลี่ยนเป็น key แบบ publishable/secret)
 
 เนื้อหาที่ผู้ใช้เห็นเป็นภาษาไทยเป็นหลัก และเว็บรองรับสองภาษา (th/en) · เอกสารในรีโปเขียนเป็นภาษาไทย
 
@@ -28,7 +28,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-ยังไม่มี — หลัง P0 คาดว่าจะมี `npm run dev` / `build` / `lint` / `typecheck` / `test` (Vitest) และ Playwright สำหรับ e2e ให้แก้ส่วนนี้ให้ตรงกับของจริงเมื่อ scaffold เสร็จ
+ใช้ **pnpm** เท่านั้น
+
+```bash
+pnpm dev                              # dev server (http://localhost:3000)
+pnpm build                            # production build
+pnpm lint                             # ESLint
+pnpm exec next typegen && pnpm exec tsc --noEmit   # typecheck (ต้อง typegen ก่อน เพราะ LayoutProps/PageProps เป็น type ที่ Next สร้าง)
+```
+
+`test` (Vitest), `format` และ script `typecheck` จะเพิ่มใน P0-05 · Playwright เพิ่มใน P5-06 · เพิ่ม script ใหม่เมื่อไรให้แก้ส่วนนี้ด้วย
+
+## Next.js 16 ในรีโปนี้
+
+@AGENTS.md
+
+- `next.config.ts` เปิด **`cacheComponents: true`** ไว้ (ค่าเริ่มต้นของ create-next-app) แคชด้วย `"use cache"` + `cacheLife` / `cacheTag` และ revalidate ด้วย `revalidateTag` / `updateTag` ไม่ใช้ `export const revalidate` แบบ ISR เดิม · อ่าน `node_modules/next/dist/docs/` ก่อนเขียนเรื่อง caching, routing และ proxy
+- Tailwind v4 โหลดผ่าน `@tailwindcss/turbopack` (ตั้งใน `next.config.ts`) และตั้งค่า theme ใน `src/app/globals.css` ด้วย `@theme` ไม่มี `tailwind.config`
 
 ## สิ่งที่ mockup กำหนดไว้ (ต้องรักษาไว้ในตัวจริง)
 
