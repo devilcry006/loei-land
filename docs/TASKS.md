@@ -15,10 +15,10 @@
 
 > อัปเดตทุกครั้งที่จบรอบการทำงาน — คนหรือ Claude ที่มาทำต่อจะอ่านส่วนนี้ก่อน
 
-- **เฟสปัจจุบัน:** P1 🟨 (branch `p1-schema` ยังไม่ merge)
+- **เฟสปัจจุบัน:** P1 🟨 (branch `p1-schema` ยังไม่ merge · P1-01, P1-02 เสร็จ)
 - **task ที่กำลังทำ:** —
-- **ขั้นต่อไป:** P1-02 RLS policy (เริ่ม `pnpm db:start` ก่อนทุกครั้ง) · RLS เปิดทุกตารางแล้ว เหลือเขียน policy + function `is_admin()` จากตาราง `admins` + test
-- **ค้างอยู่ / รอคนตัดสินใจ:** บัญชี Supabase cloud / Vercel / Sentry + push CI ย้ายไป M1-05 แล้ว · D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
+- **ขั้นต่อไป:** P1-03 seed (14 อำเภอ + ตำบล, POI จาก landmark ใน mockup, ทรัพย์ 5 แปลง) · เริ่ม `pnpm db:start` ก่อนทุกครั้ง
+- **ค้างอยู่ / รอคนตัดสินใจ:** `pnpm db:test` ยังไม่อยู่ใน CI (รอ M1-05) · บัญชี Supabase cloud / Vercel / Sentry + push CI ย้ายไป M1-05 แล้ว · D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
 - **หมายเหตุสำหรับรอบถัดไป:**
   - `cacheComponents: true` เปิดอยู่ → แคชด้วย `"use cache"` / `cacheTag` ไม่ใช่ `revalidate` แบบเดิม
   - `pnpm-workspace.yaml` ตั้ง `ignoredBuiltDependencies: sharp` → ต้องอนุญาตให้ build `sharp` ใน M1-02
@@ -28,6 +28,7 @@
   - Tailwind v4 ตัด CSS variable ที่ไม่มี class ใช้ทิ้ง จึงใช้ `@theme static` · ปุ่ม/ช่องกรอกสูง 44px (mockup ใช้ 38px) เพื่อให้แตะบนมือถือได้
   - i18n: `<html>` อยู่ใน `app/[locale]/layout.tsx` · `app/layout.tsx` แค่คืน children · `app/not-found.tsx` มี `<html>` ของตัวเอง (404 ชั่วคราว ทำเต็มใน P1-08) · ทุกหน้าใต้ `[locale]` ต้องเรียก `setRequestLocale(locale)` ถึงจะ static ได้
   - schema: enum เก็บรหัสอังกฤษ (`property_type`, `listing_status`, `crm_status` ฯลฯ) ป้าย th/en ต้องไปอยู่ใน messages · ข้อความทรัพย์เป็นคู่ `_th`/`_en` (`_en` ว่างได้ → fallback) · `code`/`slug`/`zone_lat/lon` ว่างได้จนกว่าจะเผยแพร่ (check `approved_is_publishable` บังคับตอน approved) · subdistrict อ้างด้วย slug แบบ fk คู่ `(district, subdistrict)`
+  - RLS: anon ถูก revoke ทุกสิทธิ์ (รวม default privileges) ยกเว้น select 5 ตารางสาธารณะ → ตารางใหม่ต้อง `grant` เอง · test RLS อยู่ใน `supabase/tests/` รันด้วย `pnpm db:test` · seed แอดมิน: insert `auth.users` id ลง `admins` ด้วย secret key/SQL
   - Chrome headless บังคับความกว้างขั้นต่ำประมาณ 500px ภาพ screenshot มือถือจึงดูล้นจอ ให้ใช้ device emulation ของ Playwright แทน
 
 ---
@@ -45,7 +46,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 | เฟส                     | สถานะ    | task เสร็จ/ทั้งหมด |
 | ----------------------- | -------- | ------------------ |
 | P0 ตั้งต้น              | ✅ เสร็จ | 6/6                |
-| P1 ข้อมูล + หน้าสาธารณะ | 🟨       | 1/8                |
+| P1 ข้อมูล + หน้าสาธารณะ | 🟨       | 2/8                |
 | P3 บางส่วน (ก่อน M1)    | ⬜       | 0/4                |
 | 🚀 M1 เปิดตัวแบบย่อ     | ⬜       | 0/6                |
 | P2 แผนที่ Longdo        | ⬜       | 0/5                |
@@ -104,11 +105,12 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [x] ตาราง `leads`, `buyer_requests`, `crm_events`, `audit_log`
   - [x] ตาราง `districts`, `subdistricts`, `poi` + `admins` (รายชื่อแอดมินสำหรับ RLS)
   - [x] trigger `updated_at` + generate TypeScript types (`pnpm db:types`)
-- [ ] **P1-02** RLS
+- [x] **P1-02** RLS
   - [x] เปิด RLS ทุกตาราง (ทำไว้ใน migration ของ P1-01 เพื่อให้ deny by default ตั้งแต่แรก)
-  - [ ] policy anon: `properties` เฉพาะ approved · รูปของทรัพย์ approved · `districts`/`subdistricts`/`poi`
-  - [ ] policy แอดมิน (ตรวจจากตารางรายชื่อแอดมิน)
-  - [ ] test: anon อ่าน `property_private` / `leads` / ทรัพย์ pending ไม่ได้ · anon insert ตรงไม่ได้
+  - [x] policy anon: `properties` เฉพาะ approved · รูปของทรัพย์ approved · `districts`/`subdistricts`/`poi`
+  - [x] policy แอดมิน (ตรวจจากตาราง `admins` ผ่าน `is_admin()`) · `crm_events`/`audit_log` เพิ่มได้อย่างเดียว
+  - [x] test: anon อ่าน `property_private` / `leads` / ทรัพย์ pending ไม่ได้ · anon insert ตรงไม่ได้ (pgTAP 30 ข้อ `pnpm db:test`)
+  - [ ] เพิ่ม `pnpm db:test` เข้า CI (ต้อง `supabase start` ใน runner) — ทำพร้อม M1-05 ตอน push แล้วดู CI จริง
 - [ ] **P1-03** seed
   - [ ] 14 อำเภอ (ชื่อไทย/อังกฤษ, จุดกลาง) + ตำบล
   - [ ] POI จาก landmark ใน mockup
@@ -310,6 +312,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 ใหม่สุดอยู่บน · 1 บรรทัดต่อรอบการทำงาน: วันที่ — ทำอะไร (รหัส task) — ค้างอะไร
 
+- 2026-11-10 — P1-02 เสร็จ: RLS policy + `is_admin()` + revoke สิทธิ์ anon + pgTAP 30 ข้อ (`pnpm db:test`) · ค้าง: db:test ใน CI · ต่อไป P1-03
 - 2026-11-10 — P1-01 เสร็จ: migration `init_schema` (11 ตาราง + enum + trigger `updated_at` + เปิด RLS ทุกตาราง) + types · ต่อไป P1-02
 - 2026-11-10 — P0-04 เสร็จ: Supabase local + client 4 แบบ + script `db:*` · **P0 ครบ** · ต่อไป P1-01
 - 2026-11-10 — P0-06 เสร็จ (CI) · ย้ายงานที่ต้องใช้บัญชีภายนอกไป M1-05 · P0-04 เปลี่ยนเป็น Supabase local

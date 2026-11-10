@@ -103,7 +103,7 @@ subdistricts    (district_slug, slug, name_th, name_en)              -- pk (dist
 poi             (id, name_th, name_en, kind, lat, lon)                -- ยกมาจาก landmark ใน mockup
 ```
 
-**RLS:** anon อ่านได้แค่ `properties` (approved), รูปของทรัพย์ที่ approved, `districts`/`subdistricts`/`poi` · ตารางอื่นปิดทั้งหมด · แอดมิน (authenticated + อยู่ในรายชื่อแอดมิน) ทำได้ทุกอย่าง
+**RLS:** anon อ่านได้แค่ `properties` (approved), รูปของทรัพย์ที่ approved, `districts`/`subdistricts`/`poi` · ตารางอื่นปิดทั้งหมด และ revoke สิทธิ์ของ anon ทุกตารางยกเว้น select 5 ตารางนั้น (ชั้นป้องกันที่สอง) · แอดมิน = authenticated + อยู่ในตาราง `admins` (`is_admin()` security definer) ทำได้ทุกอย่าง ยกเว้น `crm_events`/`audit_log` ที่ insert ได้อย่างเดียวและ `actor_id` ต้องเป็นตัวเอง · ตาราง `admins` แก้ได้ผ่าน dashboard / secret key เท่านั้น · test: `supabase/tests/rls.test.sql` (pgTAP)
 `crm_status` ตาม `CRM_STATUSES` ใน mockup แต่เก็บเป็นรหัสอังกฤษ (ดู enum ด้านบน)
 
 ---

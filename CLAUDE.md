@@ -42,6 +42,7 @@ pnpm check                  # lint + typecheck + test + format:check — รั�
 
 pnpm db:start               # Supabase local บน Docker (Studio: http://127.0.0.1:54323) · db:stop / db:status
 pnpm db:reset               # ล้าง DB local แล้วรัน migration + seed ใหม่ทั้งหมด
+pnpm db:test                # pgTAP ใน supabase/tests/*.test.sql (RLS ฯลฯ) — ต้อง db:start ก่อน · ยังไม่อยู่ใน pnpm check / CI
 pnpm exec supabase migration new <ชื่อ>   # สร้างไฟล์ migration ใน supabase/migrations/
 pnpm db:types               # สร้าง src/lib/supabase/database.types.ts ใหม่ — รันทุกครั้งที่แก้ schema
 ```
@@ -70,6 +71,8 @@ pnpm db:types               # สร้าง src/lib/supabase/database.types.ts
 | `server.ts` → `createClient()`       | งานที่ต้องรู้ว่าใครล็อกอิน (แอดมิน)                               | ตาม session ใน cookie · ทำให้หน้าเป็น dynamic      |
 | `client.ts` → `createClient()`       | Client Component                                                  | anon / session ในเบราว์เซอร์                       |
 | `admin.ts` → `createAdminClient()`   | Server Action / route handler หลังตรวจ input + สิทธิ์แล้วเท่านั้น | secret key **ข้าม RLS**                            |
+
+RLS: anon อ่านได้เฉพาะ `properties`/`property_photos` ที่ approved + `districts`/`subdistricts`/`poi` (และถูก revoke สิทธิ์เขียนทุกตาราง) · แอดมินคือ user ที่อยู่ในตาราง `admins` (ตรวจด้วย `is_admin()`) · `crm_events`/`audit_log` เพิ่มได้อย่างเดียว · ตารางใหม่ต้อง `grant` ให้ anon เอง + เพิ่ม test ใน `supabase/tests/`
 
 `server.ts`, `public.ts`, `admin.ts` มี `import "server-only"` (ใน Vitest ถูกแทนด้วย stub) · query สาธารณะให้เลือกคอลัมน์ชัดเจน ห้าม `select *`
 
