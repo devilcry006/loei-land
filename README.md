@@ -8,22 +8,26 @@
 
 ## เริ่มต้น
 
-ต้องมี Node.js 20+ และ [pnpm](https://pnpm.io)
+ต้องมี Node.js 24 ([`.nvmrc`](.nvmrc)), [pnpm](https://pnpm.io) และ Docker (สำหรับ Supabase local)
 
 ```bash
 pnpm install
-cp .env.example .env.local   # แล้วใส่ค่าจริง (ดูคำอธิบายในไฟล์)
+pnpm db:start                # Supabase local — ครั้งแรกจะดาวน์โหลด image นาน
+cp .env.example .env.local   # ใส่ API_URL / PUBLISHABLE_KEY / SECRET_KEY จาก `pnpm db:status`
 pnpm dev                     # http://localhost:5173
 ```
 
 ## คำสั่ง
 
-| คำสั่ง                              | ทำอะไร                                                |
-| ----------------------------------- | ----------------------------------------------------- |
-| `pnpm dev`                          | dev server ที่ port 5173                              |
-| `pnpm build` / `pnpm start`         | build และรันแบบ production                            |
-| `pnpm lint`                         | ESLint                                                |
-| `pnpm typecheck`                    | สร้าง route types แล้วรัน `tsc --noEmit`              |
-| `pnpm test` / `pnpm test:watch`     | Vitest                                                |
-| `pnpm format` / `pnpm format:check` | Prettier                                              |
-| `pnpm check`                        | lint + typecheck + test + format:check (รันก่อน push) |
+| คำสั่ง                                    | ทำอะไร                                                |
+| ----------------------------------------- | ----------------------------------------------------- |
+| `pnpm dev`                                | dev server ที่ port 5173                              |
+| `pnpm build` / `pnpm start`               | build และรันแบบ production                            |
+| `pnpm lint`                               | ESLint                                                |
+| `pnpm typecheck`                          | สร้าง route types แล้วรัน `tsc --noEmit`              |
+| `pnpm test` / `pnpm test:watch`           | Vitest                                                |
+| `pnpm format` / `pnpm format:check`       | Prettier                                              |
+| `pnpm check`                              | lint + typecheck + test + format:check (รันก่อน push) |
+| `pnpm db:start` / `db:stop` / `db:status` | Supabase local บน Docker                              |
+| `pnpm db:reset`                           | ล้าง DB local แล้วรัน migration + seed ใหม่           |
+| `pnpm db:types`                           | สร้าง TypeScript types จาก schema                     |

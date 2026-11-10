@@ -15,14 +15,15 @@
 
 > อัปเดตทุกครั้งที่จบรอบการทำงาน — คนหรือ Claude ที่มาทำต่อจะอ่านส่วนนี้ก่อน
 
-- **เฟสปัจจุบัน:** P0 — 🟨 กำลังทำ (branch `feat/p0-setup`)
-- **task ที่กำลังทำ:** P0-01, 02, 03, 05, 06 ✅ · P0-04 🟨 Supabase local
-- **ขั้นต่อไป:** ปิด P0-04 → เริ่ม P1-01 migration
+- **เฟสปัจจุบัน:** P0 ✅ เสร็จ → P1 ถัดไป (merge เข้า main แล้ว · P1 ให้แตก branch ใหม่)
+- **task ที่กำลังทำ:** —
+- **ขั้นต่อไป:** P1-01 migration schema (เริ่ม `pnpm db:start` ก่อนทุกครั้ง)
 - **ค้างอยู่ / รอคนตัดสินใจ:** บัญชี Supabase cloud / Vercel / Sentry + push CI ย้ายไป M1-05 แล้ว · D-2, D-3, D-5, D-6 ต้องเสร็จก่อน 🚀 M1 · D-1 (Longdo) ไม่บล็อก M1 เพราะ M1 ไม่มีแผนที่
 - **หมายเหตุสำหรับรอบถัดไป:**
   - `cacheComponents: true` เปิดอยู่ → แคชด้วย `"use cache"` / `cacheTag` ไม่ใช่ `revalidate` แบบเดิม
   - `pnpm-workspace.yaml` ตั้ง `ignoredBuiltDependencies: sharp` → ต้องอนุญาตให้ build `sharp` ใน M1-02
   - `AGENTS.md` ถูกเขียนซ้ำโดย `next dev` ให้ commit ไว้ อย่าลบ
+  - Supabase local: key ใน `.env.local` เป็นค่าตั้งต้นของ local · เลือก client ตามตารางใน `CLAUDE.md` (หน้าสาธารณะใช้ `createPublicClient` เพื่อให้แคชได้) · แก้ schema แล้วรัน `pnpm db:types`
   - ใช้ `pnpm typecheck` เสมอ (ลบ type เก่าใน `.next/dev/types` + typegen ให้แล้ว) อย่ารัน `tsc` ตรง ๆ · รัน `pnpm check` ก่อน commit
   - Tailwind v4 ตัด CSS variable ที่ไม่มี class ใช้ทิ้ง จึงใช้ `@theme static` · ปุ่ม/ช่องกรอกสูง 44px (mockup ใช้ 38px) เพื่อให้แตะบนมือถือได้
   - i18n: `<html>` อยู่ใน `app/[locale]/layout.tsx` · `app/layout.tsx` แค่คืน children · `app/not-found.tsx` มี `<html>` ของตัวเอง (404 ชั่วคราว ทำเต็มใน P1-08) · ทุกหน้าใต้ `[locale]` ต้องเรียก `setRequestLocale(locale)` ถึงจะ static ได้
@@ -40,16 +41,16 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 ช่วงก่อน P4 แอดมินใส่ทรัพย์ผ่าน Supabase dashboard + เครื่องมือใน M1 · P4 ต้องรอ P3 ครบ
 
-| เฟส                     | สถานะ      | task เสร็จ/ทั้งหมด |
-| ----------------------- | ---------- | ------------------ |
-| P0 ตั้งต้น              | 🟨 กำลังทำ | 5/6                |
-| P1 ข้อมูล + หน้าสาธารณะ | ⬜         | 0/8                |
-| P3 บางส่วน (ก่อน M1)    | ⬜         | 0/4                |
-| 🚀 M1 เปิดตัวแบบย่อ     | ⬜         | 0/6                |
-| P2 แผนที่ Longdo        | ⬜         | 0/5                |
-| P3 ที่เหลือ (P3-04, 05) | ⬜         | 0/2                |
-| P4 หลังบ้านแอดมิน       | ⬜         | 0/7                |
-| P5 SEO + เปิดตัวเต็ม    | ⬜         | 0/8                |
+| เฟส                     | สถานะ    | task เสร็จ/ทั้งหมด |
+| ----------------------- | -------- | ------------------ |
+| P0 ตั้งต้น              | ✅ เสร็จ | 6/6                |
+| P1 ข้อมูล + หน้าสาธารณะ | ⬜       | 0/8                |
+| P3 บางส่วน (ก่อน M1)    | ⬜       | 0/4                |
+| 🚀 M1 เปิดตัวแบบย่อ     | ⬜       | 0/6                |
+| P2 แผนที่ Longdo        | ⬜       | 0/5                |
+| P3 ที่เหลือ (P3-04, 05) | ⬜       | 0/2                |
+| P4 หลังบ้านแอดมิน       | ⬜       | 0/7                |
+| P5 SEO + เปิดตัวเต็ม    | ⬜       | 0/8                |
 
 สัญลักษณ์: ⬜ ยังไม่เริ่ม · 🟨 กำลังทำ · ✅ เสร็จ · ⛔ ติดบล็อก
 
@@ -74,12 +75,13 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
   - [x] `src/proxy.ts` ใช้ middleware ของ next-intl (ข้าม `api`, `admin`, `_next`, ไฟล์ที่มีนามสกุล)
   - [x] `src/app/[locale]/layout.tsx` (มี `<html lang>`, ฟอนต์, metadata ตามภาษา, `setRequestLocale`) + `messages/th.json`, `messages/en.json` + type ของ key ข้อความใน `src/global.d.ts`
   - [x] `/` redirect ไป `/th` (หรือ `/en` ถ้าเบราว์เซอร์ตั้งภาษาอังกฤษ) · `/th` และ `/en` เป็นหน้า static · URL ผิดได้ 404
-- [ ] **P0-04** Supabase (local บน Docker — project บน cloud ย้ายไป M1-05)
-  - [ ] `pnpm add -D supabase` + `supabase init` + `supabase start` รันได้ในเครื่อง
-  - [ ] `.env.local` ใส่ URL + publishable key + secret key ของ Supabase local
-  - [ ] `pnpm add @supabase/supabase-js @supabase/ssr` + `src/lib/supabase/client.ts` (browser) และ `server.ts` (server component, cookies)
-  - [ ] `src/lib/supabase/admin.ts` (secret key) บรรทัดแรกเป็น `import 'server-only'`
-  - [ ] ทดสอบเชื่อมต่อ DB local ได้จริง + เพิ่มคำสั่ง Supabase ใน `CLAUDE.md` / README
+- [x] **P0-04** Supabase (local บน Docker — project บน cloud ย้ายไป M1-05)
+  - [x] `pnpm add -D supabase` (CLI 3.1) + `supabase init` + `pnpm db:start` รันได้ในเครื่อง (Postgres 17) · ปิด sign-up สาธารณะ, ปิด edge runtime / analytics, site_url = `localhost:5173`
+  - [x] `.env.local` ใส่ URL + publishable key + secret key ของ Supabase local
+  - [x] `@supabase/supabase-js` 2.119 + `@supabase/ssr` 0.12 · `client.ts` (browser), `server.ts` (cookie), `public.ts` (ไม่มี cookie ใช้กับ `"use cache"`) + `database.types.ts`
+  - [x] `admin.ts` (secret key) มี `import "server-only"` · Vitest แทน `server-only` ด้วย stub
+  - [x] ทดสอบเชื่อมต่อ DB local ได้จริง (admin เรียก Auth admin API ได้ / public เรียกไม่ได้) + เพิ่มคำสั่ง `db:*` ใน `CLAUDE.md` / README
+
 - [x] **P0-05** env + เครื่องมือคุณภาพโค้ด
   - [x] `.env.example` ครบตาม `PLAN.md` §7 (+ `IP_HASH_SALT`, `ADMIN_NOTIFY_EMAIL`) · `.env.local` จริงรอสร้างตอน P0-04
   - [x] `.gitignore` ครอบ `.env*` (ยกเว้น `.env.example`), `.next`, `node_modules`, `.vercel`
@@ -306,6 +308,7 @@ P0 → P1 → P3 บางส่วน (P3-01, 02, 03, 06) → 🚀 M1 เปิ
 
 ใหม่สุดอยู่บน · 1 บรรทัดต่อรอบการทำงาน: วันที่ — ทำอะไร (รหัส task) — ค้างอะไร
 
+- 2026-11-10 — P0-04 เสร็จ: Supabase local + client 4 แบบ + script `db:*` · **P0 ครบ** · ต่อไป P1-01
 - 2026-11-10 — P0-06 เสร็จ (CI) · ย้ายงานที่ต้องใช้บัญชีภายนอกไป M1-05 · P0-04 เปลี่ยนเป็น Supabase local
 - 2026-11-10 — P0-05 เสร็จ (ข้าม P0-04 ไว้รอ Supabase project): `.env.example`, ESLint rules, Prettier, Vitest, `pnpm check`
 - 2026-11-10 — P0-03 เสร็จ: next-intl 4.14 + `proxy.ts` · `/th` `/en` static · ต่อไป P0-04 (รอ Supabase project)

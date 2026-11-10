@@ -39,6 +39,11 @@ pnpm test                   # Vitest ครั้งเดียว (test:watch 
 pnpm exec vitest run src/lib/cn.test.ts   # รันไฟล์เดียว · เพิ่ม -t "ชื่อ test" เพื่อรัน test เดียว
 pnpm format                 # Prettier เขียนทับ (format:check = ตรวจอย่างเดียว)
 pnpm check                  # lint + typecheck + test + format:check — รันก่อน commit ทุกครั้ง
+
+pnpm db:start               # Supabase local บน Docker (Studio: http://127.0.0.1:54323) · db:stop / db:status
+pnpm db:reset               # ล้าง DB local แล้วรัน migration + seed ใหม่ทั้งหมด
+pnpm exec supabase migration new <ชื่อ>   # สร้างไฟล์ migration ใน supabase/migrations/
+pnpm db:types               # สร้าง src/lib/supabase/database.types.ts ใหม่ — รันทุกครั้งที่แก้ schema
 ```
 
 - **comment:** เขียนเฉพาะเหตุผลที่อ่านจากโค้ดไม่ออก (ทำไม, ข้อจำกัด, กับดัก) ห้ามเขียนอธิบายสิ่งที่ชื่อตัวแปร/ฟังก์ชันบอกอยู่แล้ว ไม่ใส่รหัส task หรือ JSDoc อธิบายสิ่งที่เห็นชัด
@@ -54,6 +59,19 @@ pnpm check                  # lint + typecheck + test + format:check — รั�
 - `next.config.ts` เปิด **`cacheComponents: true`** ไว้ (ค่าเริ่มต้นของ create-next-app) แคชด้วย `"use cache"` + `cacheLife` / `cacheTag` และ revalidate ด้วย `revalidateTag` / `updateTag` ไม่ใช้ `export const revalidate` แบบ ISR เดิม · อ่าน `node_modules/next/dist/docs/` ก่อนเขียนเรื่อง caching, routing และ proxy
 - Tailwind v4 โหลดผ่าน `@tailwindcss/turbopack` (ตั้งใน `next.config.ts`) และตั้งค่า theme ใน `src/app/globals.css` ด้วย `@theme` ไม่มี `tailwind.config`
 - **i18n (next-intl):** หน้าสาธารณะอยู่ใต้ `src/app/[locale]/` ซึ่งเป็นที่อยู่ของ `<html lang>` · ทุก page/layout ใต้ `[locale]` ต้องเรียก `setRequestLocale(locale)` ไม่อย่างนั้นหน้าจะไม่ static · ใช้ `Link` / `redirect` / `useRouter` จาก `@/i18n/navigation` ไม่ใช่จาก `next/*` · ข้อความอยู่ใน `messages/{th,en}.json` และ type ของ key ยึดตาม `th.json` (`src/global.d.ts`) จึงต้องเพิ่ม key ให้ครบทั้งสองไฟล์ · `/admin` อยู่นอก `[locale]` และ `proxy.ts` ข้ามไว้แล้ว
+
+## Supabase client — เลือกให้ถูกตัว
+
+ทั้งหมดอยู่ใน `src/lib/supabase/` · ตอนนี้ใช้ Supabase local (`.env.local` เป็น key ตั้งต้นของ local) ส่วน project บน cloud จะสร้างใน M1-05
+
+| ไฟล์                                 | ใช้ที่ไหน                                                         | สิทธิ์                                             |
+| ------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------------- |
+| `public.ts` → `createPublicClient()` | อ่านข้อมูลสาธารณะใน Server Component / `"use cache"`              | anon (ผ่าน RLS) · ไม่แตะ cookie หน้าเลย static ได้ |
+| `server.ts` → `createClient()`       | งานที่ต้องรู้ว่าใครล็อกอิน (แอดมิน)                               | ตาม session ใน cookie · ทำให้หน้าเป็น dynamic      |
+| `client.ts` → `createClient()`       | Client Component                                                  | anon / session ในเบราว์เซอร์                       |
+| `admin.ts` → `createAdminClient()`   | Server Action / route handler หลังตรวจ input + สิทธิ์แล้วเท่านั้น | secret key **ข้าม RLS**                            |
+
+`server.ts`, `public.ts`, `admin.ts` มี `import "server-only"` (ใน Vitest ถูกแทนด้วย stub) · query สาธารณะให้เลือกคอลัมน์ชัดเจน ห้าม `select *`
 
 ## สิ่งที่ mockup กำหนดไว้ (ต้องรักษาไว้ในตัวจริง)
 
